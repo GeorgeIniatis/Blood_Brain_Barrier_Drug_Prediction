@@ -1,3 +1,4 @@
 #Directories
 venv/
 .idea/
+__pycache__/
