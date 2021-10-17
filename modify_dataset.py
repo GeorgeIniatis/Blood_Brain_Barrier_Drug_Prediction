@@ -4,6 +4,39 @@ import numpy as np
 import requests
 
 BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/"
+pd.set_option('display.max_columns', None)
+
+
+# Needed to avoid string to float error associated with NaN
+def fill_nan(working_set):
+    working_set.fillna('', inplace=True)
+
+
+def remove_unknown_compounds(working_set):
+    working_set.drop(working_set[working_set['Compound_CID'] == 0].index, inplace=True)
+
+
+def load_from_excel(excel_file, worksheet):
+    return pd.read_excel(excel_file, worksheet)
+
+
+def load_to_excel(working_set, new_file_name):
+    working_set.to_excel(new_file_name)
+
+
+def recalculate_bbb_permeability(working_set, more_than_or_equal_to_value):
+    working_set['Class'] = np.where(working_set['logBB'] >= more_than_or_equal_to_value, 1, 0)
+
+
+def post_cid_using_smiles(smiles):
+    response = requests.post(url=BASE + f"smiles/cids/txt",
+                             data={"smiles": smiles},
+                             headers={"Content-Type": "application/x-www-form-urlencoded"})
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
+
 
 def get_cid_using_smiles(smiles):
     response = requests.get(BASE + f"smiles/{smiles}/cids/txt")
@@ -28,78 +61,60 @@ def get_synonyms(cid):
     else:
         return None
 
-if __name__ == "__main__":
-    pd.set_option('display.max_columns', None)
 
-    excelFile = 'Dataset.xlsx'
-    worksheet = 'Whole Set'
+def populate_cid_name_synonyms(working_set):
+    # Try to get CID from SMILES
+    # If it includes a forward or backward slash use a POST request, otherwise use a GET request
+    for index, row in working_set.iterrows():
+        row_smiles = row['SMILES']
 
-    whole_set = pd.read_excel(excelFile, worksheet)
+        if ("/" in row_smiles) or ("\\" in row_smiles):
+            cid_from_post_smiles = post_cid_using_smiles(row_smiles)
 
-    # Needed to avoid string to float error associated with NaN
-    whole_set.fillna({
-        'Name_Found': '',
-        'Compound_CID': '',
-        'MW': '',
-        'PSA': '',
-        'logP': '',
-        'NHD': '',
-        'NHA': '',
-        'pka(Acid)': '',
-        'pka(Base)': '',
-        'NRB': '',
-        'Synonyms': '',
-    }, inplace=True)
-
-    print(whole_set.shape)
-
-    whole_set['Class'] = np.where(whole_set['logBB'] >= -1, 1, 0)
-
-    uncertain_compounds_indexes = []
-
-    # Try to get CID from SMILES first. If not possible try using the name
-    for index, row in whole_set.iterrows():
-        row_SMILES = quote(row['SMILES'], safe='')
-        cid_from_smiles = get_cid_using_smiles(row_SMILES)
-
-        if cid_from_smiles is not None:
-            cid = cid_from_smiles
-            synonyms = get_synonyms(cid_from_smiles)
-            if synonyms is not None:
-                name = synonyms[0]
+            if cid_from_post_smiles is not None:
+                cid = cid_from_post_smiles
+                synonyms = get_synonyms(cid)
+                if synonyms is not None:
+                    name = synonyms[0]
+                else:
+                    synonyms = '-'
+                    name = '-'
             else:
+                cid = '-'
                 synonyms = '-'
                 name = '-'
         else:
-            row_NAME = row['Name']
-            cid_from_name = get_cid_using_name(row_NAME)
+            row_smiles_encoded = quote(row_smiles, safe='')
+            cid_from_get_smiles = get_cid_using_smiles(row_smiles_encoded)
 
-            if cid_from_name is not None:
-                if len(cid_from_name) == 1:
-                    cid = cid_from_name[0]
-                    synonyms = get_synonyms(cid_from_smiles)
-                    if synonyms is not None:
-                        name = synonyms[0]
-                    else:
-                        synonyms = '-'
-                        name = '-'
+            if cid_from_get_smiles is not None:
+                cid = cid_from_get_smiles
+                synonyms = get_synonyms(cid)
+                if synonyms is not None:
+                    name = synonyms[0]
                 else:
-                    cid = '-'
                     synonyms = '-'
                     name = '-'
-
-                    uncertain_compounds_indexes.append(index)
             else:
                 cid = '-'
                 synonyms = '-'
                 name = '-'
 
-        whole_set.at[index, 'Compound_CID'] = cid
-        whole_set.at[index, 'Name_Found'] = name
-        whole_set.at[index, 'Synonyms'] = synonyms
+        working_set.at[index, 'Compound_CID'] = cid
+        working_set.at[index, 'Name'] = name
+        working_set.at[index, 'Synonyms'] = synonyms
 
         print(index)
 
-    print(uncertain_compounds_indexes)
 
-    whole_set.to_excel('Dataset_New.xlsx')
+if __name__ == "__main__":
+
+    working_set = load_from_excel('Dataset.xlsx', 'Whole Set')
+    fill_nan(working_set)
+    recalculate_bbb_permeability(working_set, -1)
+
+    print(working_set.shape)
+    populate_cid_name_synonyms(working_set)
+
+    remove_unknown_compounds(working_set)
+    load_to_excel(working_set, 'Dataset_new.xlsx')

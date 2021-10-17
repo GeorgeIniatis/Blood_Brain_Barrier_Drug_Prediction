@@ -1,5 +1,6 @@
-from modify_dataset import get_synonyms, get_cid_using_smiles, get_cid_using_name, BASE, quote
+from modify_dataset import *
 
+working_set = load_from_excel('Dataset_New.xlsx', 'Sheet1')
+remove_unknown_compounds(working_set)
 
-print(quote("CCNC(=N/C#N)\\NCCSCc1c(Br)cccn1", safe=''))
-print(get_synonyms(5385314))
+load_to_excel(working_set, 'Dataset_Test.xlsx')

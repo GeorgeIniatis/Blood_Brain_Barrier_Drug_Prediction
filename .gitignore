@@ -2,3 +2,9 @@
 venv/
 .idea/
 __pycache__/
+conda_env/
+
+#Files
+testing.py
+
+
