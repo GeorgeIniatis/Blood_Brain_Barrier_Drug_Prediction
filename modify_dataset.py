@@ -4,6 +4,8 @@ import numpy as np
 import requests
 
 BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/"
+DESCRIPTORS = ['MolecularWeight', 'XLogP', 'TPSA', 'HBondDonorCount', 'HBondAcceptorCount', 'RotatableBondCount']
+
 pd.set_option('display.max_columns', None)
 
 
@@ -13,7 +15,7 @@ def fill_nan(working_set):
 
 
 def remove_unknown_compounds(working_set):
-    working_set.drop(working_set[working_set['Compound_CID'] == 0].index, inplace=True)
+    working_set.drop(working_set[working_set['PubChem_CID'] == '-'].index, inplace=True)
 
 
 def load_from_excel(excel_file, worksheet):
@@ -62,59 +64,71 @@ def get_synonyms(cid):
         return None
 
 
-def populate_cid_name_synonyms(working_set):
+def get_chemical_descriptors(cid):
+    response = requests.get(
+        BASE + f"cid/{cid}/property/MolecularWeight,TPSA,XLogP,HBondDonorCount,HBondAcceptorCount,RotatableBondCount/json")
+    if response.status_code == 200:
+        descriptors_dictionary = response.json()['PropertyTable']['Properties'][0]
+        del descriptors_dictionary['CID']
+
+        if len(descriptors_dictionary.keys()) != 6:
+            for descriptor in DESCRIPTORS:
+                if descriptor not in descriptors_dictionary.keys():
+                    descriptors_dictionary[descriptor] = '-'
+
+        return descriptors_dictionary
+    else:
+        return None
+
+
+def populate_dataset(working_set):
     # Try to get CID from SMILES
     # If it includes a forward or backward slash use a POST request, otherwise use a GET request
     for index, row in working_set.iterrows():
         row_smiles = row['SMILES']
 
         if ("/" in row_smiles) or ("\\" in row_smiles):
-            cid_from_post_smiles = post_cid_using_smiles(row_smiles)
+            cid = post_cid_using_smiles(row_smiles)
+        else:
+            row_smiles_encoded = quote(row_smiles, safe='')
+            cid = get_cid_using_smiles(row_smiles_encoded)
 
-            if cid_from_post_smiles is not None:
-                cid = cid_from_post_smiles
-                synonyms = get_synonyms(cid)
-                if synonyms is not None:
-                    name = synonyms[0]
-                else:
-                    synonyms = '-'
-                    name = '-'
+        if (cid is not None) and (cid != 0):
+            descriptors = get_chemical_descriptors(cid)
+            synonyms = get_synonyms(cid)
+
+            if synonyms is not None:
+                name = synonyms[0]
             else:
-                cid = '-'
                 synonyms = '-'
                 name = '-'
         else:
-            row_smiles_encoded = quote(row_smiles, safe='')
-            cid_from_get_smiles = get_cid_using_smiles(row_smiles_encoded)
+            cid = '-'
+            synonyms = '-'
+            name = '-'
+            descriptors = {'MolecularWeight': '-', 'XLogP': '-', 'TPSA': '-', 'HBondDonorCount': '-',
+                           'HBondAcceptorCount': '-', 'RotatableBondCount': '-'}
 
-            if cid_from_get_smiles is not None:
-                cid = cid_from_get_smiles
-                synonyms = get_synonyms(cid)
-                if synonyms is not None:
-                    name = synonyms[0]
-                else:
-                    synonyms = '-'
-                    name = '-'
-            else:
-                cid = '-'
-                synonyms = '-'
-                name = '-'
-
-        working_set.at[index, 'Compound_CID'] = cid
         working_set.at[index, 'Name'] = name
+        working_set.at[index, 'PubChem_CID'] = cid
+        working_set.at[index, 'MW'] = float(descriptors['MolecularWeight']) if descriptors['MolecularWeight'] != '-' else descriptors['MolecularWeight']
+        working_set.at[index, 'TPSA'] = descriptors['TPSA']
+        working_set.at[index, 'XLogP'] = descriptors['XLogP']
+        working_set.at[index, 'NHD'] = descriptors['HBondDonorCount']
+        working_set.at[index, 'NHA'] = descriptors['HBondAcceptorCount']
+        working_set.at[index, 'NRB'] = descriptors['RotatableBondCount']
         working_set.at[index, 'Synonyms'] = synonyms
 
         print(index)
 
 
 if __name__ == "__main__":
-
     working_set = load_from_excel('Dataset.xlsx', 'Whole Set')
     fill_nan(working_set)
     recalculate_bbb_permeability(working_set, -1)
 
     print(working_set.shape)
-    populate_cid_name_synonyms(working_set)
+    populate_dataset(working_set)
 
     remove_unknown_compounds(working_set)
     load_to_excel(working_set, 'Dataset_new.xlsx')
