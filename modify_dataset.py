@@ -2,6 +2,7 @@ from urllib.parse import quote
 import pandas as pd
 import numpy as np
 import requests
+import json
 
 BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/"
 DESCRIPTORS = ['MolecularWeight', 'XLogP', 'TPSA', 'HBondDonorCount', 'HBondAcceptorCount', 'RotatableBondCount']
@@ -59,7 +60,7 @@ def get_pubchem_cid_using_name(name):
 def get_synonyms(pubchem_cid):
     response = requests.get(BASE + f"cid/{pubchem_cid}/synonyms/json")
     if response.status_code == 200:
-        return response.json()['InformationList']['Information'][0]['Synonym']
+        return json.dumps(response.json()['InformationList']['Information'][0]['Synonym'])
     else:
         return None
 
@@ -187,9 +188,20 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
         print(f"Processed: {index}")
 
+    # Sort and remove any unknown compounds and duplicates
+    working_set_sorted = working_set.sort_values('Name')
     remove_unknown_compounds(working_set)
-    load_to_excel(working_set, new_file_name)
+    working_set_sorted_no_duplicates = working_set_sorted.drop_duplicates(subset=['PubChem_CID'])
+
+    load_to_excel(working_set_sorted_no_duplicates, new_file_name)
 
 
 if __name__ == "__main__":
     populate_dataset('Dataset.xlsx', 'Sheet1', 'Dataset_new.xlsx')
+    '''
+    working_set = load_from_excel('Dataset.xlsx', 'Sheet1')
+    side_effects = json.loads(working_set.iloc[1745]['Side_Effects'].replace('\'', '"'))
+    print(side_effects)
+    for effect in side_effects:
+        print(effect)
+    '''
