@@ -105,6 +105,7 @@ def get_side_effect_using_sider_cid(sider_side_effects_sorted, sider_cid):
     return side_effects_list
 
 
+# Assuming you have the SMILES
 def populate_dataset(excel_file, worksheet, new_file_name):
     # SIDER datasets needed. Added columns and in the case of SIDER_Side_Effects kept only PT in order to reduce size
     sider_cid_name = load_from_excel('SIDER_CID_Name.xlsx', 'drug_names')
@@ -117,7 +118,7 @@ def populate_dataset(excel_file, worksheet, new_file_name):
     working_set = load_from_excel(excel_file, worksheet)
 
     fill_nan(working_set)
-    recalculate_bbb_permeability(working_set, -1)
+    # recalculate_bbb_permeability(working_set, -1)
 
     for index, row in working_set.iterrows():
         if row['PubChem_CID'] == '':
@@ -181,13 +182,14 @@ def populate_dataset(excel_file, worksheet, new_file_name):
             working_set.at[index, 'Side_Effects'] = side_effects
 
         else:
+            print(f"Skipped: {index}")
             continue
 
-        print(index)
+        print(f"Processed: {index}")
 
     remove_unknown_compounds(working_set)
     load_to_excel(working_set, new_file_name)
 
 
 if __name__ == "__main__":
-    populate_dataset('Dataset_empty.xlsx', 'Whole Set', 'Dataset_new.xlsx')
+    populate_dataset('Dataset.xlsx', 'Sheet1', 'Dataset_new.xlsx')

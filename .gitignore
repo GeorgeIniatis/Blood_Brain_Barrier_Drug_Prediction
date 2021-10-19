@@ -6,5 +6,6 @@ conda_env/
 
 #Files
 testing.py
+.google-cookie
 
 
