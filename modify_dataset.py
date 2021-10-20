@@ -191,7 +191,6 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
         print(f"Processed: {index}")
 
-
     # Sort and remove any unknown compounds and duplicates
     working_set = working_set.sort_values('Name')
     remove_unknown_compounds(working_set)
@@ -227,4 +226,5 @@ if __name__ == "__main__":
 
     load_to_excel(working_set, 'Other_Dataset_New.xlsx')
     '''
+
 
