@@ -49,10 +49,12 @@ def get_pubchem_cid_using_smiles(smiles):
         return None
 
 
-def get_pubchem_cid_using_name(name):
-    response = requests.get(BASE + f"name/{name}/cids/json")
+def get_pubchem_cid_and_smiles_using_name(name):
+    response = requests.get(BASE + f"name/{name}/property/IsomericSMILES/json")
     if response.status_code == 200:
-        return response.json()['IdentifierList']['CID']
+        pubchem_cid = response.json()['PropertyTable']['Properties'][0]['CID']
+        smiles = response.json()['PropertyTable']['Properties'][0]['IsomericSMILES']
+        return [pubchem_cid, smiles]
     else:
         return None
 
@@ -106,7 +108,7 @@ def get_side_effect_using_sider_cid(sider_side_effects_sorted, sider_cid):
     return side_effects_list
 
 
-# Assuming you have the SMILES
+# Assuming you have only the SMILES
 def populate_dataset(excel_file, worksheet, new_file_name):
     # SIDER datasets needed. Added columns and in the case of SIDER_Side_Effects kept only PT in order to reduce size
     sider_cid_name = load_from_excel('SIDER_CID_Name.xlsx', 'drug_names')
@@ -141,12 +143,13 @@ def populate_dataset(excel_file, worksheet, new_file_name):
                 synonyms = get_synonyms(pubchem_cid)
 
                 if synonyms is not None:
-                    name = synonyms[0]
+                    synonyms_list = json.loads(synonyms)
+                    name = synonyms_list[0]
                     sider_cid = '-'
 
                     # Search all compound synonyms for a hit in the SIDER dataset
                     # If we find a SIDER_CID we exit the for loop and search for any side effects
-                    for synonym in synonyms:
+                    for synonym in synonyms_list:
                         sider_cid = get_sider_cid_using_name(sider_cid_name_sorted, synonym)
                         if sider_cid is not None:
                             side_effects = get_side_effect_using_sider_cid(sider_side_effects_sorted, sider_cid)
@@ -188,16 +191,17 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
         print(f"Processed: {index}")
 
-    # Sort and remove any unknown compounds and duplicates
-    working_set_sorted = working_set.sort_values('Name')
-    remove_unknown_compounds(working_set)
-    working_set_sorted_no_duplicates = working_set_sorted.drop_duplicates(subset=['PubChem_CID'])
 
-    load_to_excel(working_set_sorted_no_duplicates, new_file_name)
+    # Sort and remove any unknown compounds and duplicates
+    working_set = working_set.sort_values('Name')
+    remove_unknown_compounds(working_set)
+    working_set = working_set.drop_duplicates(subset=['PubChem_CID'])
+
+    load_to_excel(working_set, new_file_name)
 
 
 if __name__ == "__main__":
-    populate_dataset('Dataset.xlsx', 'Sheet1', 'Dataset_new.xlsx')
+    populate_dataset('Dataset.xlsx', 'Sheet1', 'Dataset_New.xlsx')
     '''
     working_set = load_from_excel('Dataset.xlsx', 'Sheet1')
     side_effects = json.loads(working_set.iloc[1745]['Side_Effects'].replace('\'', '"'))
@@ -205,3 +209,22 @@ if __name__ == "__main__":
     for effect in side_effects:
         print(effect)
     '''
+
+    ''''
+    working_set = load_from_excel('Other_Dataset.xlsx', 'Sheet1')
+    fill_nan(working_set)
+    for index, row in working_set.iterrows():
+        name = row['Name']
+        returnList = get_pubchem_cid_and_smiles_using_name(name)
+        if returnList is not None:
+            working_set.at[index, 'PubChem_CID'] = returnList[0]
+            working_set.at[index, 'SMILES'] = returnList[1]
+        else:
+            working_set.at[index, 'PubChem_CID'] = '-'
+            working_set.at[index, 'SMILES'] = '-'
+
+        print(index)
+
+    load_to_excel(working_set, 'Other_Dataset_New.xlsx')
+    '''
+
