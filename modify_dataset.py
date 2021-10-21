@@ -24,7 +24,7 @@ def load_from_excel(excel_file, worksheet):
 
 
 def load_to_excel(working_set, new_file_name):
-    working_set.to_excel(new_file_name)
+    working_set.to_excel(new_file_name, engine='xlsxwriter')
 
 
 def recalculate_bbb_permeability(working_set, more_than_or_equal_to_value):
@@ -108,14 +108,60 @@ def get_side_effect_using_sider_cid(sider_side_effects_sorted, sider_cid):
     return json.dumps(side_effects_list)
 
 
+def get_indications_using_sider_cid(sider_indications_sorted, sider_cid):
+    indications_list = []
+    index_retrieved = np.searchsorted(sider_indications_sorted['SIDER_ID'], sider_cid)
+
+    # Indications for each drug are one under the other
+    while sider_indications_sorted.iloc[index_retrieved]['SIDER_ID'] == sider_cid:
+        indications_list.append(sider_indications_sorted.iloc[index_retrieved]['Indication_Name'])
+        index_retrieved += 1
+
+    return json.dumps(indications_list)
+
+
+def one_hot_encoding_side_effects(working_set):
+    working_set['Side_Effects_JSON'] = ''
+
+    for index, row in working_set.iterrows():
+        side_effects_string = row['Side_Effects']
+        if side_effects_string != '-':
+            working_set.at[index, 'Side_Effects_JSON'] = json.loads(side_effects_string)
+
+    one_hot_side_effects = working_set['Side_Effects_JSON'].str.join('|').str.get_dummies().add_prefix('Side_Effect_')
+    joined_set = working_set.join(one_hot_side_effects)
+    joined_set.drop(columns=['Side_Effects_JSON'], inplace=True)
+
+    return joined_set
+
+
+def one_hot_encoding_indications(working_set):
+    working_set['Indications_JSON'] = ''
+
+    for index, row in working_set.iterrows():
+        indications_string = row['Indications']
+        if indications_string != '-':
+            working_set.at[index, 'Indications_JSON'] = json.loads(indications_string)
+
+    one_hot_indications = working_set['Indications_JSON'].str.join('|').str.get_dummies().add_prefix('Indication_')
+    joined_set = working_set.join(one_hot_indications)
+    joined_set.drop(columns=['Indications_JSON'], inplace=True)
+
+    return joined_set
+
+
 # Assuming you have only the SMILES
 def populate_dataset(excel_file, worksheet, new_file_name):
-    # SIDER datasets needed. Added columns and in the case of SIDER_Side_Effects kept only PT in order to reduce size
+    # SIDER datasets needed
+    # Added columns and in the case of SIDER_Side_Effects and SIDER_Indications kept only PT in order to reduce size
     sider_cid_name = load_from_excel('SIDER_CID_Name.xlsx', 'drug_names')
     sider_cid_name_sorted = sider_cid_name.sort_values('Drug_Name')
 
     sider_side_effects = load_from_excel('SIDER_Side_Effects.xlsx', 'Sheet1')
     sider_side_effects_sorted = sider_side_effects.sort_values('SIDER_ID')
+
+    sider_indications = load_from_excel('SIDER_Indications.xlsx', 'Sheet1')
+    sider_indications_sorted = sider_indications.sort_values('SIDER_ID')
 
     # Our compounds/drug dataset
     working_set = load_from_excel(excel_file, worksheet)
@@ -153,21 +199,25 @@ def populate_dataset(excel_file, worksheet, new_file_name):
                         sider_cid = get_sider_cid_using_name(sider_cid_name_sorted, synonym)
                         if sider_cid is not None:
                             side_effects = get_side_effect_using_sider_cid(sider_side_effects_sorted, sider_cid)
+                            indications = get_indications_using_sider_cid(sider_indications_sorted, sider_cid)
                             break
                         else:
                             sider_cid = '-'
                             side_effects = '-'
+                            indications = '-'
                 else:
                     synonyms = '-'
                     name = '-'
                     sider_cid = '-'
                     side_effects = '-'
+                    indications = '-'
             else:
                 pubchem_cid = '-'
                 sider_cid = '-'
                 synonyms = '-'
                 name = '-'
                 side_effects = '-'
+                indications = '-'
                 descriptors = {'MolecularWeight': '-', 'XLogP': '-', 'TPSA': '-', 'HBondDonorCount': '-',
                                'HBondAcceptorCount': '-', 'RotatableBondCount': '-'}
 
@@ -184,6 +234,7 @@ def populate_dataset(excel_file, worksheet, new_file_name):
             working_set.at[index, 'NRB'] = descriptors['RotatableBondCount']
             working_set.at[index, 'Synonyms'] = synonyms
             working_set.at[index, 'Side_Effects'] = side_effects
+            working_set.at[index, 'Indications'] = indications
 
         else:
             print(f"Skipped: {index}")
@@ -194,19 +245,18 @@ def populate_dataset(excel_file, worksheet, new_file_name):
     # Sort and remove any unknown compounds and duplicates
     working_set = working_set.sort_values('Name')
     remove_unknown_compounds(working_set)
-    working_set = working_set.drop_duplicates(subset=['PubChem_CID'])
+    working_set.drop_duplicates(subset=['PubChem_CID'], inplace=True)
+    print("Dataset sorted and any duplicates or unknown compounds were removed")
 
+    print("Processing one hot encoding for side effects")
+    working_set = one_hot_encoding_side_effects(working_set)
+
+    print("Processing one hot encoding for indications")
+    working_set = one_hot_encoding_indications(working_set)
+
+    print("Loading everything to excel file")
     load_to_excel(working_set, new_file_name)
 
 
 if __name__ == "__main__":
-
-    working_set = load_from_excel('Dataset.xlsx', 'Sheet1')
-    #.replace('\'', '"')
-    side_effects = json.loads(working_set.iloc[285]['Side_Effects'])
-    print(side_effects)
-    for effect in side_effects:
-        print(effect)
-
-
-
+    populate_dataset('Dataset.xlsx', 'Sheet1', 'Dataset_New.xlsx')
