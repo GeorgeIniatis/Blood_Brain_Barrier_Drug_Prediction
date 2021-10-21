@@ -105,7 +105,7 @@ def get_side_effect_using_sider_cid(sider_side_effects_sorted, sider_cid):
         side_effects_list.append(sider_side_effects_sorted.iloc[index_retrieved]['Side_Effect'])
         index_retrieved += 1
 
-    return side_effects_list
+    return json.dumps(side_effects_list)
 
 
 # Assuming you have only the SMILES
@@ -200,31 +200,13 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
 
 if __name__ == "__main__":
-    populate_dataset('Dataset.xlsx', 'Sheet1', 'Dataset_New.xlsx')
-    '''
+
     working_set = load_from_excel('Dataset.xlsx', 'Sheet1')
-    side_effects = json.loads(working_set.iloc[1745]['Side_Effects'].replace('\'', '"'))
+    #.replace('\'', '"')
+    side_effects = json.loads(working_set.iloc[285]['Side_Effects'])
     print(side_effects)
     for effect in side_effects:
         print(effect)
-    '''
 
-    ''''
-    working_set = load_from_excel('Other_Dataset.xlsx', 'Sheet1')
-    fill_nan(working_set)
-    for index, row in working_set.iterrows():
-        name = row['Name']
-        returnList = get_pubchem_cid_and_smiles_using_name(name)
-        if returnList is not None:
-            working_set.at[index, 'PubChem_CID'] = returnList[0]
-            working_set.at[index, 'SMILES'] = returnList[1]
-        else:
-            working_set.at[index, 'PubChem_CID'] = '-'
-            working_set.at[index, 'SMILES'] = '-'
-
-        print(index)
-
-    load_to_excel(working_set, 'Other_Dataset_New.xlsx')
-    '''
 
 
