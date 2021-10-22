@@ -52,9 +52,12 @@ def get_pubchem_cid_using_smiles(smiles):
 def get_pubchem_cid_and_smiles_using_name(name):
     response = requests.get(BASE + f"name/{name}/property/IsomericSMILES/json")
     if response.status_code == 200:
-        pubchem_cid = response.json()['PropertyTable']['Properties'][0]['CID']
-        smiles = response.json()['PropertyTable']['Properties'][0]['IsomericSMILES']
-        return [pubchem_cid, smiles]
+        if len(response.json()['PropertyTable']['Properties']) == 1:
+            pubchem_cid = response.json()['PropertyTable']['Properties'][0]['CID']
+            smiles = response.json()['PropertyTable']['Properties'][0]['IsomericSMILES']
+            return [pubchem_cid, smiles]
+        else:
+            return None
     else:
         return None
 
@@ -259,4 +262,4 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
 
 if __name__ == "__main__":
-    populate_dataset('Dataset.xlsx', 'Sheet1', 'Dataset_New.xlsx')
+    populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset.xlsx')
