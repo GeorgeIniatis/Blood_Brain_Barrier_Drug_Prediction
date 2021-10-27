@@ -1,3 +1,4 @@
+import urllib3.exceptions
 from modify_dataset import *
 from googlesearch import search
 from urllib.parse import urlparse
@@ -8,67 +9,90 @@ Might need a VPN service to run. Connecting to Marseille seems to be working rea
 HTTP Error 429: Too Many Requests is extremely common
 '''
 
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36",
+}
+
+queries_and_regular_expressions = [
+    ["\"does not cross the blood-brain barrier\"", "\w+.does not cross the blood.brain barrier."],
+    ["\"doesn't cross the blood-brain barrier\"", "\w+.doesn't cross the blood.brain barrier."],
+    ["\"does not cross the BBB\"", "\w+.does not cross the bbb."],
+    ["\"doesn't cross the BBB\"", "\w+.doesn't cross the bbb."],
+    ["\"does not pass through the blood-brain barrier\"", "\w+.does not pass through the blood.brain barrier."],
+    ["\"doesn't pass through the blood-brain barrier\"", "\w+.doesn't pass through the blood.brain barrier."],
+    ["\"does not pass through the BBB\"", "\w+.does not pass through the bbb."],
+    ["\"doesn't pass through the BBB\"", "\w+.doesn't pass through the bbb."],
+    ["\"cannot enter the brain\"", "\w+.cannot enter the brain."],
+    ["\"cannot get through the blood-brain barrier\"", "\w+.cannot get through the blood.brain barrier."],
+    ["\"cannot get through the BBB\"", "\w+.cannot get through the bbb."],
+    ["\"cannot cross the blood-brain barrier\"", "\w+.cannot cross the blood.brain barrier."],
+    ["\"cannot cross the BBB\"", "\w+.cannot cross the bbb."],
+]
+
 
 def raw_string(string):
     return fr"{string}"
 
 
-queries = [["\"does not cross the blood-brain barrier\"", '\w+ does not cross the \w+.\w+.\w+'],
-           ["\"does not cross the BBB\"", '\w+ does not cross the BBB'],
-           ["\"doesn't cross the blood-brain barrier\"", '\w+ doesn\'t cross the \w+.\w+.\w+'],
-           ["\"doesn't cross the BBB\"", '\w+ does\'t cross the BBB']]
+# returns a list of lists
+# [ ["Drug name", "Query", "Regular expression used to get matches", "Actual matched string", "URL", "Domain, "Class"] , [...] ]
+def automated_google_searches(query_and_regular_expression):
+    potential_drugs = []
+    index = 0
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36",
-}
+    query = query_and_regular_expression[0]
+    regular_expression = query_and_regular_expression[1]
 
-potential_drugs = {}
-
-domain_white_list = ['pubmed.ncbi.nlm.nih.gov', 'diabetes.diabetesjournals.org', 'bmcneurosci.biomedcentral.com',
-                     'thejournalofheadacheandpain.biomedcentral.com', 'academic.oup.com', 'www.nature.com',
-                     'www.researchgate.net', 'www.asaabstracts.com', 'www.jneurosci.org', 'onlinelibrary.wiley.com',
-                     'tspace.library.utoronto.ca', 'www.hindawi.com', 'jpet.aspetjournals.org', 'psycnet.apa.org',
-                     'cancerres.aacrjournals.org', 'benthamscience.com', 'www.pnas.org', 'pubs.acs.org',
-                     'www.karger.com', 'ascopubs.org', 'research-information.bris.ac.uk', 'www.sec.gov',
-                     'www.redjournal.org', 'www.ahajournals.org', 'www.mdedge.com', 'n.neurology.org',
-                     'www.alzforum.org', 'core.ac.uk', 'www.northeastern.edu',
-                     'sites.duke.edu', 'scientiaricerca.com', 'www.statpearls.com', 'www.chemdiv.com',
-                     'www.medscape.org', 'www.rch.org.au',
-                     'www.apdaparkinson.org', 'www.bbrfoundation.org', 'www.rockefeller.edu', 'www.academia.edu',
-                     'en.wikipedia.org', 'www.cureus.com', 'uofuhealth.utah.edu']
-
-# Causing memory errors
-domain_black_list = ['nursing.ceconnection.com']
-
-index = 0
-for query in queries:
-    for url in search(query[0], tld="com", lang='en', num=100, start=0, stop=None, pause=2.0):
+    for url in search(query, tld="com", lang='en', num=100, start=0, stop=None, pause=3.0):
         domain = urlparse(url).netloc
-        print(domain)
-        if domain not in domain_black_list:
-            try:
-                request = requests.get(url, headers=headers, timeout=10)
-                if request.status_code == 200:
-                    page_content = request.text
-                    matches = re.findall(raw_string(query[1]), page_content)
+        print(f"Query: {query}")
+        print(f"URL: {url}")
+        try:
+            request = requests.get(url, headers=headers, timeout=10)
+            if request.status_code == 200:
+                try:
+                    page_content = request.text.lower()
+                    page_content_size = len(page_content)
+                    print(f"Content size: {page_content_size}")
+                    match = re.search(raw_string(regular_expression), page_content)
+                    if match is not None:
+                        print("Match found")
+                        potential_drug_name = match.group(0).split(' ')[0].lower()
+                        potential_drugs.append(
+                            [potential_drug_name, query, regular_expression, match.group(0), url, domain, 0])
+                    else:
+                        print("Match not found")
 
-                    for match in matches:
-                        potential_drug_name = match.split(' ')[0].lower()
-                        potential_drugs[potential_drug_name] = [query[0], query[1], match, url]
-            except requests.exceptions.RequestException as e:
-                print(e)
-                continue
+                except MemoryError:
+                    print("Memory error!")
+                    continue
+        except requests.exceptions.RequestException as e:
+            print(e)
+            print()
+            continue
+        except urllib3.exceptions.LocationParseError as e:
+            print(e)
+            print()
+            continue
 
         print(index)
+        print()
         index += 1
 
-data = []
-for key, value in potential_drugs.items():
-    pubchem_cid_smiles = get_pubchem_cid_and_smiles_using_name(key)
-    if pubchem_cid_smiles is not None:
-        data.append([pubchem_cid_smiles[1], pubchem_cid_smiles[0], key, value[0], value[1], value[2], value[3], 0])
+    return potential_drugs
 
-dataframe = pd.DataFrame(data,
-                         columns=['SMILES', 'PubChem_CID', 'Name', 'Query', 'Regular_Expression', 'Matched_String',
-                                  'URL', 'Class'])
-load_to_excel(dataframe, 'Google_Searches.xlsx')
+
+def create_dataframe_and_load_to_excel(potential_drugs, new_file_name):
+    dataframe = pd.DataFrame(potential_drugs,
+                             columns=['Name', 'Query', 'Regular_Expression', 'Matched_String', 'URL', 'Domain',
+                                      'Class'])
+
+    load_to_excel(dataframe, new_file_name)
+
+
+if __name__ == "__main__":
+    index = 13
+    for query_and_regular_expression in queries_and_regular_expressions[12:]:
+        potential_drugs_dictionary = automated_google_searches(query_and_regular_expression)
+        create_dataframe_and_load_to_excel(potential_drugs_dictionary, f'Google_Searches_Subset_{index}.xlsx')
+        index += 1

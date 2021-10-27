@@ -20,17 +20,20 @@ def remove_unknown_compounds(working_set):
 
 
 def load_from_excel(excel_file, worksheet):
-    return pd.read_excel(excel_file, worksheet)
+    path = f"Excel_Files/{excel_file}"
+    return pd.read_excel(path, worksheet)
 
 
 def load_to_excel(working_set, new_file_name):
-    working_set.to_excel(new_file_name, engine='xlsxwriter')
+    path = f"Excel_Files/{new_file_name}"
+    working_set.to_excel(path, engine='xlsxwriter')
 
 
 def recalculate_bbb_permeability(working_set, more_than_or_equal_to_value):
     working_set['Class'] = np.where(working_set['logBB'] >= more_than_or_equal_to_value, 1, 0)
 
 
+# Use if SMILES includes backward or forward slash
 def post_pubchem_cid_using_smiles(smiles):
     response = requests.post(url=BASE + f"smiles/cids/txt",
                              data={"smiles": smiles},
@@ -41,6 +44,7 @@ def post_pubchem_cid_using_smiles(smiles):
         return None
 
 
+# Use for all other SMILES
 def get_pubchem_cid_using_smiles(smiles):
     response = requests.get(BASE + f"smiles/{smiles}/cids/txt")
     if response.status_code == 200:
@@ -48,7 +52,23 @@ def get_pubchem_cid_using_smiles(smiles):
     else:
         return None
 
+# Use for all drug names with special characters
+def post_pubchem_cid_and_smiles_using_name(name):
+    response = requests.post(
+        url=BASE + f"name/property/IsomericSMILES/json",
+        data={"name": name},
+        headers={"Content-Type": "application/x-www-form-urlencoded"})
+    if response.status_code == 200:
+        if len(response.json()['PropertyTable']['Properties']) == 1:
+            pubchem_cid = response.json()['PropertyTable']['Properties'][0]['CID']
+            smiles = response.json()['PropertyTable']['Properties'][0]['IsomericSMILES']
+            return [pubchem_cid, smiles]
+        else:
+            return None
+    else:
+        return None
 
+# Use for drug names without special characters
 def get_pubchem_cid_and_smiles_using_name(name):
     response = requests.get(BASE + f"name/{name}/property/IsomericSMILES/json")
     if response.status_code == 200:
@@ -156,7 +176,7 @@ def one_hot_encoding_indications(working_set):
 # Assuming you have only the SMILES
 def populate_dataset(excel_file, worksheet, new_file_name):
     # SIDER datasets needed
-    # Added columns and in the case of SIDER_Side_Effects and SIDER_Indications kept only PT in order to reduce size
+    # Added column names and in the case of SIDER_Side_Effects and SIDER_Indications kept only PT to reduce size
     sider_cid_name = load_from_excel('SIDER_CID_Name.xlsx', 'drug_names')
     sider_cid_name_sorted = sider_cid_name.sort_values('Drug_Name')
 
@@ -262,4 +282,35 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
 
 if __name__ == "__main__":
-    populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset.xlsx')
+    working_set = load_from_excel('SIDER_CID_Name.xlsx', 'drug_names')
+    working_set['PubChem_CID'] = ''
+    working_set['SMILES'] = ''
+    working_set['Synonyms'] = ''
+    for index, row in working_set.iterrows():
+        drug_name = row['Drug_Name']
+        pubchem_cid_smiles = post_pubchem_cid_and_smiles_using_name(drug_name)
+
+        if pubchem_cid_smiles is not None:
+            cid = pubchem_cid_smiles[0]
+            smiles = pubchem_cid_smiles[1]
+            synonyms = get_synonyms(cid)
+
+            if synonyms is not None:
+                working_set.at[index, 'PubChem_CID'] = cid
+                working_set.at[index, 'SMILES'] = smiles
+                working_set.at[index, 'Synonyms'] = synonyms
+            else:
+                working_set.at[index, 'PubChem_CID'] = cid
+                working_set.at[index, 'SMILES'] = smiles
+                working_set.at[index, 'Synonyms'] = '-'
+
+        else:
+            working_set.at[index, 'PubChem_CID'] = '-'
+            working_set.at[index, 'SMILES'] = '-'
+            working_set.at[index, 'Synonyms'] = '-'
+
+        print(index)
+
+    load_to_excel(working_set, 'SIDER_CID_Name_Modified.xlsx')
+
+    # populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset.xlsx')
