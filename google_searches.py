@@ -14,20 +14,18 @@ headers = {
 }
 
 queries_and_regular_expressions = [
-    ["\"does not cross the blood-brain barrier\"", "\w+.does not cross the blood.brain barrier."],
-    ["\"doesn't cross the blood-brain barrier\"", "\w+.doesn't cross the blood.brain barrier."],
-    ["\"does not cross the BBB\"", "\w+.does not cross the bbb."],
-    ["\"doesn't cross the BBB\"", "\w+.doesn't cross the bbb."],
-    ["\"does not pass through the blood-brain barrier\"", "\w+.does not pass through the blood.brain barrier."],
-    ["\"doesn't pass through the blood-brain barrier\"", "\w+.doesn't pass through the blood.brain barrier."],
-    ["\"does not pass through the BBB\"", "\w+.does not pass through the bbb."],
-    ["\"doesn't pass through the BBB\"", "\w+.doesn't pass through the bbb."],
-    ["\"cannot enter the brain\"", "\w+.cannot enter the brain."],
-    ["\"cannot get through the blood-brain barrier\"", "\w+.cannot get through the blood.brain barrier."],
-    ["\"cannot get through the BBB\"", "\w+.cannot get through the bbb."],
-    ["\"cannot cross the blood-brain barrier\"", "\w+.cannot cross the blood.brain barrier."],
-    ["\"cannot cross the BBB\"", "\w+.cannot cross the bbb."],
+    ["\"does not cross the blood-brain barrier\"", "\w+.\w+.\w+.does not cross the blood.brain barrier."],
+    ["\"does not pass through the blood-brain barrier\"", "\w+.\w+.\w+.does not pass through the blood.brain barrier."],
+    ["\"cannot get through the blood-brain barrier\"", "\w+.\w+.\w+.cannot get through the blood.brain barrier."],
+    ["\"cannot cross the blood-brain barrier\"", "\w+.\w+.\w+.cannot cross the blood.brain barrier."],
+    ["\"does not cross the BBB\"", "\w+.\w+.\w+.does not cross the bbb."],
+    ["\"does not pass through the BBB\"", "\w+.\w+.\w+.does not pass through the bbb."],
+    ["\"cannot get through the BBB\"", "\w+.\w+.\w+.cannot get through the bbb."],
+    ["\"cannot cross the BBB\"", "\w+.\w+.\w+.cannot cross the bbb."],
+    ["\"cannot enter the brain\"", "\w+.\w+.\w+.cannot enter the brain."],
 ]
+
+search_sites = ["https://pubs.acs.org/", "https://pubmed.ncbi.nlm.nih.gov/"]
 
 
 def raw_string(string):
@@ -35,64 +33,61 @@ def raw_string(string):
 
 
 # returns a list of lists
-# [ ["Drug name", "Query", "Regular expression used to get matches", "Actual matched string", "URL", "Domain, "Class"] , [...] ]
+# [ ["Query", "Regular expression used to get matches", "Actual matched string", "URL"] , [...] ]
 def automated_google_searches(query_and_regular_expression):
     potential_drugs = []
     index = 0
 
-    query = query_and_regular_expression[0]
-    regular_expression = query_and_regular_expression[1]
+    for search_site in search_sites:
+        query = query_and_regular_expression[0] + f" site:{search_site}"
+        regular_expression = query_and_regular_expression[1]
 
-    for url in search(query, tld="com", lang='en', num=100, start=0, stop=None, pause=3.0):
-        domain = urlparse(url).netloc
-        print(f"Query: {query}")
-        print(f"URL: {url}")
-        try:
-            request = requests.get(url, headers=headers, timeout=10)
-            if request.status_code == 200:
-                try:
-                    page_content = request.text.lower()
-                    page_content_size = len(page_content)
-                    print(f"Content size: {page_content_size}")
-                    match = re.search(raw_string(regular_expression), page_content)
-                    if match is not None:
-                        print("Match found")
-                        potential_drug_name = match.group(0).split(' ')[0].lower()
-                        potential_drugs.append(
-                            [potential_drug_name, query, regular_expression, match.group(0), url, domain, 0])
-                    else:
-                        print("Match not found")
+        for url in search(query, tld="com", lang='en', num=100, start=0, stop=100, pause=3.0):
+            print(f"Query: {query}")
+            print(f"URL: {url}")
+            try:
+                request = requests.get(url, headers=headers, timeout=10)
+                if request.status_code == 200:
+                    try:
+                        page_content = request.text.lower()
+                        page_content_size = len(page_content)
+                        print(f"Content size: {page_content_size}")
+                        match = re.search(raw_string(regular_expression), page_content)
+                        if match is not None:
+                            print("Match found")
+                            potential_drugs.append([query, regular_expression, match.group(0), url])
+                        else:
+                            print("Match not found")
 
-                except MemoryError:
-                    print("Memory error!")
-                    continue
-        except requests.exceptions.RequestException as e:
-            print(e)
+                    except MemoryError:
+                        print("Memory error!")
+                        continue
+            except requests.exceptions.RequestException as e:
+                print(e)
+                print()
+                continue
+            except urllib3.exceptions.LocationParseError as e:
+                print(e)
+                print()
+                continue
+
+            print(index)
             print()
-            continue
-        except urllib3.exceptions.LocationParseError as e:
-            print(e)
-            print()
-            continue
-
-        print(index)
-        print()
-        index += 1
+            index += 1
 
     return potential_drugs
 
 
 def create_dataframe_and_load_to_excel(potential_drugs, new_file_name):
     dataframe = pd.DataFrame(potential_drugs,
-                             columns=['Name', 'Query', 'Regular_Expression', 'Matched_String', 'URL', 'Domain',
-                                      'Class'])
+                             columns=['Query', 'Regular_Expression', 'Matched_String', 'URL'])
 
     load_to_excel(dataframe, new_file_name)
 
 
 if __name__ == "__main__":
-    index = 13
-    for query_and_regular_expression in queries_and_regular_expressions[12:]:
+    index = 5
+    for query_and_regular_expression in queries_and_regular_expressions[4:]:
         potential_drugs_dictionary = automated_google_searches(query_and_regular_expression)
         create_dataframe_and_load_to_excel(potential_drugs_dictionary, f'Google_Searches_Subset_{index}.xlsx')
         index += 1
