@@ -52,6 +52,7 @@ def get_pubchem_cid_using_smiles(smiles):
     else:
         return None
 
+
 # Use for all drug names with special characters
 def post_pubchem_cid_and_smiles_using_name(name):
     response = requests.post(
@@ -67,6 +68,7 @@ def post_pubchem_cid_and_smiles_using_name(name):
             return None
     else:
         return None
+
 
 # Use for drug names without special characters
 def get_pubchem_cid_and_smiles_using_name(name):
@@ -282,7 +284,7 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
 
 if __name__ == "__main__":
-    working_set = load_from_excel('SIDER_CID_Name.xlsx', 'drug_names')
+    '''working_set = load_from_excel('SIDER_CID_Name.xlsx', 'drug_names')
     working_set['PubChem_CID'] = ''
     working_set['SMILES'] = ''
     working_set['Synonyms'] = ''
@@ -311,6 +313,6 @@ if __name__ == "__main__":
 
         print(index)
 
-    load_to_excel(working_set, 'SIDER_CID_Name_Modified.xlsx')
+    load_to_excel(working_set, 'SIDER_CID_Name_Modified.xlsx')'''
 
     # populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset.xlsx')
