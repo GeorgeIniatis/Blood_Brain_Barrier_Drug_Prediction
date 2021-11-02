@@ -66,24 +66,25 @@ def get_doi(database, uid):
 
         if database == "pubmed":
             try:
-                doi = xml.find("PubmedArticle").find("MedlineCitation").find("Article").find(
+                return xml.find("PubmedArticle").find("MedlineCitation").find("Article").find(
                     "ELocationID[@EIdType='doi']").text
 
             except AttributeError:
                 try:
-                    doi = xml.find("PubmedArticle").find("PubmedData").find("ArticleIdList").find(
+                    return xml.find("PubmedArticle").find("PubmedData").find("ArticleIdList").find(
                         "ArticleId[@IdType='doi']").text
                 except AttributeError:
-                    doi = "-"
+                    return "-"
 
         elif database == "pmc":
             try:
-                doi = xml.find("article").find("front").find("article-meta").find("article-id[@pub-id-type='doi']").text
+                return xml.find("article").find("front").find("article-meta").find(
+                    "article-id[@pub-id-type='doi']").text
 
             except AttributeError:
-                doi = "-"
-
-        return doi
+                return "-"
+    else:
+        return None
 
 
 def perform_searches(database, uids_list):
@@ -109,7 +110,7 @@ def perform_searches(database, uids_list):
                                 if matches:
                                     print("Matches found")
                                     source = get_doi(database, uid)
-                                    if source != '-':
+                                    if (source is not None) and (source != '-'):
                                         source = "https://doi.org/" + source
                                     for match in matches:
                                         matches_lists.append([uid, source, database, regular_expression, match])
@@ -140,7 +141,7 @@ def perform_searches(database, uids_list):
                                     if matches:
                                         print("Matches found")
                                         source = get_doi(database, uid)
-                                        if source != '-':
+                                        if (source is not None) and (source != '-'):
                                             source = "https://doi.org/" + source
                                         for match in matches:
                                             matches_lists.append([uid, source, database, regular_expression, match])
