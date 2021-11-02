@@ -7,6 +7,7 @@ Excel_Files/Google_Searches
 
 #Files
 google_searches.py
+elsevier_api_calls.py
 config.py
 
 #Other

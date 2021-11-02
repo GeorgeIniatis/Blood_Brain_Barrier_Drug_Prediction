@@ -64,10 +64,7 @@ def post_pubchem_cid_and_smiles_using_name(name):
             pubchem_cid = response.json()['PropertyTable']['Properties'][0]['CID']
             smiles = response.json()['PropertyTable']['Properties'][0]['IsomericSMILES']
             return [pubchem_cid, smiles]
-        else:
-            return None
-    else:
-        return None
+    return None
 
 
 # Use for drug names without special characters
@@ -78,10 +75,7 @@ def get_pubchem_cid_and_smiles_using_name(name):
             pubchem_cid = response.json()['PropertyTable']['Properties'][0]['CID']
             smiles = response.json()['PropertyTable']['Properties'][0]['IsomericSMILES']
             return [pubchem_cid, smiles]
-        else:
-            return None
-    else:
-        return None
+    return None
 
 
 def get_synonyms(pubchem_cid):
@@ -115,10 +109,7 @@ def get_sider_cid_using_name(sider_cid_name_sorted, drug_name):
     if index_retrieved < len(sider_cid_name_sorted):
         if drug_name == sider_cid_name_sorted.iloc[index_retrieved]['Drug_Name']:
             return sider_cid_name_sorted.iloc[index_retrieved]['SIDER_ID']
-        else:
-            return None
-    else:
-        return None
+    return None
 
 
 def get_side_effect_using_sider_cid(sider_side_effects_sorted, sider_cid):
@@ -217,6 +208,8 @@ def populate_dataset(excel_file, worksheet, new_file_name):
                     synonyms_list = json.loads(synonyms)
                     name = synonyms_list[0]
                     sider_cid = '-'
+                    side_effects = '-'
+                    indications = '-'
 
                     # Search all compound synonyms for a hit in the SIDER dataset
                     # If we find a SIDER_CID we exit the for loop and search for any side effects
@@ -246,12 +239,14 @@ def populate_dataset(excel_file, worksheet, new_file_name):
                 descriptors = {'MolecularWeight': '-', 'XLogP': '-', 'TPSA': '-', 'HBondDonorCount': '-',
                                'HBondAcceptorCount': '-', 'RotatableBondCount': '-'}
 
+            molecular_weight = descriptors['MolecularWeight']
+            if molecular_weight != '-':
+                molecular_weight = float(molecular_weight)
+
             working_set.at[index, 'Name'] = name
             working_set.at[index, 'PubChem_CID'] = pubchem_cid
             working_set.at[index, 'SIDER_CID'] = sider_cid
-            working_set.at[index, 'MW'] = float(descriptors['MolecularWeight']) if descriptors[
-                                                                                       'MolecularWeight'] != '-' else \
-                descriptors['MolecularWeight']
+            working_set.at[index, 'MW'] = molecular_weight
             working_set.at[index, 'TPSA'] = descriptors['TPSA']
             working_set.at[index, 'XLogP'] = descriptors['XLogP']
             working_set.at[index, 'NHD'] = descriptors['HBondDonorCount']
@@ -284,35 +279,4 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
 
 if __name__ == "__main__":
-    '''working_set = load_from_excel('SIDER_CID_Name.xlsx', 'drug_names')
-    working_set['PubChem_CID'] = ''
-    working_set['SMILES'] = ''
-    working_set['Synonyms'] = ''
-    for index, row in working_set.iterrows():
-        drug_name = row['Drug_Name']
-        pubchem_cid_smiles = post_pubchem_cid_and_smiles_using_name(drug_name)
-
-        if pubchem_cid_smiles is not None:
-            cid = pubchem_cid_smiles[0]
-            smiles = pubchem_cid_smiles[1]
-            synonyms = get_synonyms(cid)
-
-            if synonyms is not None:
-                working_set.at[index, 'PubChem_CID'] = cid
-                working_set.at[index, 'SMILES'] = smiles
-                working_set.at[index, 'Synonyms'] = synonyms
-            else:
-                working_set.at[index, 'PubChem_CID'] = cid
-                working_set.at[index, 'SMILES'] = smiles
-                working_set.at[index, 'Synonyms'] = '-'
-
-        else:
-            working_set.at[index, 'PubChem_CID'] = '-'
-            working_set.at[index, 'SMILES'] = '-'
-            working_set.at[index, 'Synonyms'] = '-'
-
-        print(index)
-
-    load_to_excel(working_set, 'SIDER_CID_Name_Modified.xlsx')'''
-
-    # populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset.xlsx')
+    populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset_Populated.xlsx')

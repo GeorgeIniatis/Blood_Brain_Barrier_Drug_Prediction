@@ -1,10 +1,9 @@
 from modify_dataset import *
-from config import *
+from config import PUBMED_API_KEY
 import xml.etree.ElementTree as ET
 import re
 
 BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
-api_key = PUBMED_API_KEY
 
 regular_expressions = [
     ".*was not able to cross the blood.brain barrier.*",
@@ -52,17 +51,15 @@ def raw_string(string):
 def get_uids(database, query, max_number):
     query_encoded = quote(query, safe='')
     response = requests.get(
-        BASE + f"esearch.fcgi?db={database}&term={query_encoded}&retmax={max_number}&api_key={api_key}")
+        BASE + f"esearch.fcgi?db={database}&term={query_encoded}&retmax={max_number}&api_key={PUBMED_API_KEY}")
     if response.status_code == 200:
         xml_string = response.text
         xml = ET.fromstring(xml_string)
         return [uid_event.text for uid_event in xml.find("IdList").findall("Id")]
 
 
-# pubmed works
-# check pmc
 def get_doi(database, uid):
-    response = requests.get(BASE + f"efetch.fcgi?db={database}&id={uid}&rettype=xml&api_key={api_key}")
+    response = requests.get(BASE + f"efetch.fcgi?db={database}&id={uid}&rettype=xml&api_key={PUBMED_API_KEY}")
     if response.status_code == 200:
         xml_string = response.text
         xml = ET.fromstring(xml_string)
@@ -94,7 +91,7 @@ def perform_searches(database, uids_list):
     index = 0
 
     for uid in uids_list:
-        response = requests.get(BASE + f"efetch.fcgi?db={database}&id={uid}&rettype=xml&api_key={api_key}")
+        response = requests.get(BASE + f"efetch.fcgi?db={database}&id={uid}&rettype=xml&api_key={PUBMED_API_KEY}")
         if response.status_code == 200:
             xml_string = response.text
             xml = ET.fromstring(xml_string)
@@ -168,26 +165,12 @@ if __name__ == "__main__":
     database_options = ["pubmed", "pmc"]
     query = "blood brain barrier permeability"
 
-    # pubmed_uids_list = get_uids(database_options[0], query, 15000)
-    # matches_lists = perform_searches(database_options[0], pubmed_uids_list)
-    # create_dataframe_and_load_to_excel(matches_lists, "PubMed_Searches.xlsx")
+    # PubMed Searches
+    pubmed_uids_list = get_uids(database_options[0], query, 15000)
+    matches_lists = perform_searches(database_options[0], pubmed_uids_list)
+    create_dataframe_and_load_to_excel(matches_lists, "PubMed_Searches.xlsx")
 
-    '''working_set = load_from_excel("PubMed_Central_Searches.xlsx", "Sheet1")
-    working_set["Source"] = ""
-
-    for index, row in working_set.iterrows():
-        pmcid = row["PMCID"]
-        source = get_doi(database_options[1], pmcid)
-        if source != '-':
-            source = "https://doi.org/" + source
-        print(index)
-
-        working_set.at[index, 'Source'] = source
-
-    load_to_excel(working_set, "PubMed_Central_Searches_Sources.xlsx")'''
-
-
-
-    # pmc_uids_list = get_uids(database_options[1], query, 80000)
-    # matches_lists = perform_searches(database_options[1], pmc_uids_list)
-    # create_dataframe_and_load_to_excel(matches_lists, "PubMed_Central_Searches.xlsx")
+    # PMC Searches
+    pmc_uids_list = get_uids(database_options[1], query, 80000)
+    matches_lists = perform_searches(database_options[1], pmc_uids_list)
+    create_dataframe_and_load_to_excel(matches_lists, "PubMed_Central_Searches.xlsx")
