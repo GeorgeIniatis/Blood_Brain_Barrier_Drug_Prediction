@@ -58,33 +58,46 @@ def get_uids(database, query, max_number):
         return [uid_event.text for uid_event in xml.find("IdList").findall("Id")]
 
 
-def get_doi(database, uid):
-    response = requests.get(BASE + f"efetch.fcgi?db={database}&id={uid}&rettype=xml&api_key={PUBMED_API_KEY}")
-    if response.status_code == 200:
-        xml_string = response.text
-        xml = ET.fromstring(xml_string)
+def get_doi(database, xml):
+    if database == "pubmed":
+        try:
+            return xml.find("PubmedArticle").find("MedlineCitation").find("Article").find(
+                "ELocationID[@EIdType='doi']").text
 
-        if database == "pubmed":
+        except AttributeError:
             try:
-                return xml.find("PubmedArticle").find("MedlineCitation").find("Article").find(
-                    "ELocationID[@EIdType='doi']").text
-
-            except AttributeError:
-                try:
-                    return xml.find("PubmedArticle").find("PubmedData").find("ArticleIdList").find(
-                        "ArticleId[@IdType='doi']").text
-                except AttributeError:
-                    return "-"
-
-        elif database == "pmc":
-            try:
-                return xml.find("article").find("front").find("article-meta").find(
-                    "article-id[@pub-id-type='doi']").text
-
+                return xml.find("PubmedArticle").find("PubmedData").find("ArticleIdList").find(
+                    "ArticleId[@IdType='doi']").text
             except AttributeError:
                 return "-"
+
+    elif database == "pmc":
+        try:
+            return xml.find("article").find("front").find("article-meta").find(
+                "article-id[@pub-id-type='doi']").text
+
+        except AttributeError:
+            return "-"
     else:
         return None
+
+
+def search_for_matches(database, xml, uid, paragraphs):
+    temp_list = []
+    for paragraph in paragraphs:
+        sentences = paragraph.split(".")
+        for sentence in sentences:
+            for regular_expression in regular_expressions:
+                matches = re.findall(raw_string(regular_expression), sentence)
+                if matches:
+                    print("Matches found")
+                    source = get_doi(database, xml)
+                    if (source is not None) and (source != '-'):
+                        source = "https://doi.org/" + source
+                    for match in matches:
+                        temp_list.append([uid, source, database, regular_expression, match])
+
+    return temp_list
 
 
 def perform_searches(database, uids_list):
@@ -102,18 +115,9 @@ def perform_searches(database, uids_list):
                     abstract_texts = [''.join(abstract_text.itertext()) for abstract_text in
                                       xml.find("PubmedArticle").find("MedlineCitation").find("Article").find(
                                           "Abstract").findall("AbstractText")]
-                    for abstract_text in abstract_texts:
-                        sentences = abstract_text.split(".")
-                        for sentence in sentences:
-                            for regular_expression in regular_expressions:
-                                matches = re.findall(raw_string(regular_expression), sentence)
-                                if matches:
-                                    print("Matches found")
-                                    source = get_doi(database, uid)
-                                    if (source is not None) and (source != '-'):
-                                        source = "https://doi.org/" + source
-                                    for match in matches:
-                                        matches_lists.append([uid, source, database, regular_expression, match])
+
+                    matches_lists += search_for_matches(database, xml, uid, abstract_texts)
+
                 except AttributeError:
                     print("No abstract")
                     continue
@@ -133,23 +137,15 @@ def perform_searches(database, uids_list):
                                                          subsection_element.findall("p")]
                                 paragraphs += subsection_paragraphs
 
-                        for paragraph in paragraphs:
-                            sentences = paragraph.split(".")
-                            for sentence in sentences:
-                                for regular_expression in regular_expressions:
-                                    matches = re.findall(raw_string(regular_expression), sentence)
-                                    if matches:
-                                        print("Matches found")
-                                        source = get_doi(database, uid)
-                                        if (source is not None) and (source != '-'):
-                                            source = "https://doi.org/" + source
-                                        for match in matches:
-                                            matches_lists.append([uid, source, database, regular_expression, match])
+                        matches_lists += search_for_matches(database, xml, uid, paragraphs)
+
                 except AttributeError:
                     print("No body")
                     continue
 
         print(index)
+        if index == 1000:
+            break
         index += 1
 
     return matches_lists
@@ -172,6 +168,6 @@ if __name__ == "__main__":
     create_dataframe_and_load_to_excel(matches_lists, "PubMed_Searches.xlsx")
 
     # PMC Searches
-    pmc_uids_list = get_uids(database_options[1], query, 80000)
-    matches_lists = perform_searches(database_options[1], pmc_uids_list)
-    create_dataframe_and_load_to_excel(matches_lists, "PubMed_Central_Searches.xlsx")
+    #pmc_uids_list = get_uids(database_options[1], query, 80000)
+    #matches_lists = perform_searches(database_options[1], pmc_uids_list)
+    #create_dataframe_and_load_to_excel(matches_lists, "PubMed_Central_Searches.xlsx")
