@@ -4,12 +4,10 @@ venv/
 __pycache__/
 conda_env/
 Excel_Files/Google_Searches
-Excel_Files/Springer_meta_v2_Searches.xlsx
 
 #Files
 google_searches.py
 elsevier_api_calls.py
-springer_api_calls.py
 config.py
 
 #Other

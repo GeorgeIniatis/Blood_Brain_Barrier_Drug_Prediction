@@ -11,7 +11,7 @@ regular_expressions = [
     ".*was not able to penetrate the blood.brain barrier.*",
     ".*was not able to not penetrate the bbb.*",
     ".*was not able to pass through the blood.brain barrier.*",
-    ".*was not able tp pass through the bbb.*",
+    ".*was not able to pass through the bbb.*",
     ".*was not able to get through the blood.brain barrier.*",
     ".*was not able to get through the bbb.*",
 
@@ -63,7 +63,6 @@ def get_doi(database, xml):
         try:
             return xml.find("PubmedArticle").find("MedlineCitation").find("Article").find(
                 "ELocationID[@EIdType='doi']").text
-
         except AttributeError:
             try:
                 return xml.find("PubmedArticle").find("PubmedData").find("ArticleIdList").find(
@@ -75,13 +74,13 @@ def get_doi(database, xml):
         try:
             return xml.find("article").find("front").find("article-meta").find(
                 "article-id[@pub-id-type='doi']").text
-
         except AttributeError:
             return "-"
     else:
         return None
 
 
+# Splits the paragraphs into sentences and for each sentence the regular expressions are used to find matches
 def search_for_matches(database, xml, uid, paragraphs):
     temp_list = []
     for paragraph in paragraphs:
@@ -117,10 +116,9 @@ def perform_searches(database, uids_list):
                                           "Abstract").findall("AbstractText")]
 
                     matches_lists += search_for_matches(database, xml, uid, abstract_texts)
-
                 except AttributeError:
                     print("No abstract")
-                    continue
+                    pass
 
             elif database == "pmc":
                 try:
@@ -129,23 +127,24 @@ def perform_searches(database, uids_list):
                         paragraphs = [''.join(paragraph_element.itertext()) for paragraph_element in
                                       section_element.findall("p")]
 
-                        subsection_elements = section_element.findall("sec")
-                        if subsection_elements:
+                        try:
+                            subsection_elements = section_element.findall("sec")
                             for subsection_element in subsection_elements:
                                 subsection_paragraphs = [''.join(subsection_paragraph_element.itertext()) for
                                                          subsection_paragraph_element in
                                                          subsection_element.findall("p")]
                                 paragraphs += subsection_paragraphs
+                        except AttributeError:
+                            pass
 
                         matches_lists += search_for_matches(database, xml, uid, paragraphs)
-
                 except AttributeError:
                     print("No body")
-                    continue
+                    pass
 
         print(index)
-        if index == 1000:
-            break
+        if index in [10000, 20000, 30000, 40000, 50000, 60000]:
+            create_dataframe_and_load_to_excel(matches_lists, f"PubMed_Central_Searches_{index}.xlsx")
         index += 1
 
     return matches_lists
@@ -160,14 +159,14 @@ def create_dataframe_and_load_to_excel(matches_lists, new_file_name):
 
 if __name__ == "__main__":
     database_options = ["pubmed", "pmc"]
-    query = "blood brain barrier permeability"
+    query_string = "blood brain barrier permeability"
 
     # PubMed Searches
-    pubmed_uids_list = get_uids(database_options[0], query, 15000)
-    matches_lists = perform_searches(database_options[0], pubmed_uids_list)
-    create_dataframe_and_load_to_excel(matches_lists, "PubMed_Searches.xlsx")
+    # pubmed_uids_list = get_uids(database_options[0], query_string, 15000)
+    # matches_lists = perform_searches(database_options[0], pubmed_uids_list)
+    # create_dataframe_and_load_to_excel(matches_lists, "PubMed_Searches.xlsx")
 
     # PMC Searches
-    #pmc_uids_list = get_uids(database_options[1], query, 80000)
-    #matches_lists = perform_searches(database_options[1], pmc_uids_list)
-    #create_dataframe_and_load_to_excel(matches_lists, "PubMed_Central_Searches.xlsx")
+    pmc_uids_list = get_uids(database_options[1], query_string, 80000)
+    matches_lists = perform_searches(database_options[1], pmc_uids_list)
+    create_dataframe_and_load_to_excel(matches_lists, "PubMed_Central_Searches.xlsx")

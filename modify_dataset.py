@@ -56,7 +56,7 @@ def get_pubchem_cid_using_smiles(smiles):
 # Use for all drug names with special characters
 def post_pubchem_cid_and_smiles_using_name(name):
     response = requests.post(
-        url=BASE + f"name/property/IsomericSMILES/json",
+        url=BASE + f"name/property/IsomericSMILES,Title/json",
         data={"name": name},
         headers={"Content-Type": "application/x-www-form-urlencoded"})
     if response.status_code == 200:
@@ -64,17 +64,26 @@ def post_pubchem_cid_and_smiles_using_name(name):
             pubchem_cid = response.json()['PropertyTable']['Properties'][0]['CID']
             smiles = response.json()['PropertyTable']['Properties'][0]['IsomericSMILES']
             return [pubchem_cid, smiles]
+        else:
+            for entry_returned in response.json()['PropertyTable']['Properties']:
+                if name.lower() == entry_returned['Title'].lower():
+                    return [entry_returned['CID'], entry_returned['IsomericSMILES']]
+
     return None
 
 
 # Use for drug names without special characters
 def get_pubchem_cid_and_smiles_using_name(name):
-    response = requests.get(BASE + f"name/{name}/property/IsomericSMILES/json")
+    response = requests.get(BASE + f"name/{name}/property/IsomericSMILES,Title/json")
     if response.status_code == 200:
         if len(response.json()['PropertyTable']['Properties']) == 1:
             pubchem_cid = response.json()['PropertyTable']['Properties'][0]['CID']
             smiles = response.json()['PropertyTable']['Properties'][0]['IsomericSMILES']
             return [pubchem_cid, smiles]
+        else:
+            for entry_returned in response.json()['PropertyTable']['Properties']:
+                if name.lower() == entry_returned['Title'].lower():
+                    return [entry_returned['CID'], entry_returned['IsomericSMILES']]
     return None
 
 
@@ -279,4 +288,20 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
 
 if __name__ == "__main__":
-    populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset_Populated.xlsx')
+    # populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset_Populated.xlsx')
+
+    working_set = load_from_excel("PubMed_Searches_Other.xlsx", "Sheet1")
+    working_set["SMILES"] = ""
+    fill_nan(working_set)
+    for index, row in working_set.iterrows():
+        drug_name = row['Drug_Name']
+        cid_smiles = post_pubchem_cid_and_smiles_using_name(drug_name)
+
+        print(drug_name)
+        if cid_smiles is not None:
+            working_set.at[index, 'SMILES'] = cid_smiles[1]
+        else:
+            working_set.at[index, 'SMILES'] = '-'
+        print(index)
+
+    load_to_excel(working_set, "PubMed_Searches_Other_SMILES.xlsx")
