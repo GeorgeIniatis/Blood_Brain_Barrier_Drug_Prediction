@@ -141,8 +141,12 @@ def perform_searches(database, uids_list):
                 except AttributeError:
                     print("No body")
                     pass
+                except ConnectionError:
+                    print("Connection Error")
+                    pass
 
         print(index)
+        # Some backups in case of error
         if index in [10000, 20000, 30000, 40000, 50000, 60000]:
             create_dataframe_and_load_to_excel(matches_lists, f"PubMed_Central_Searches_{index}.xlsx")
         index += 1
@@ -162,9 +166,9 @@ if __name__ == "__main__":
     query_string = "blood brain barrier permeability"
 
     # PubMed Searches
-    # pubmed_uids_list = get_uids(database_options[0], query_string, 15000)
-    # matches_lists = perform_searches(database_options[0], pubmed_uids_list)
-    # create_dataframe_and_load_to_excel(matches_lists, "PubMed_Searches.xlsx")
+    pubmed_uids_list = get_uids(database_options[0], query_string, 15000)
+    matches_lists = perform_searches(database_options[0], pubmed_uids_list)
+    create_dataframe_and_load_to_excel(matches_lists, "PubMed_Searches.xlsx")
 
     # PMC Searches
     pmc_uids_list = get_uids(database_options[1], query_string, 80000)
