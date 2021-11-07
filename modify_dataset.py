@@ -288,19 +288,4 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
 
 if __name__ == "__main__":
-    # populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset_Populated.xlsx')
-
-    working_set = load_from_excel("Springer_openaccess_Searches.xlsx", "Sheet1")
-    working_set["SMILES"] = ""
-    fill_nan(working_set)
-    for index, row in working_set.iterrows():
-        drug_name = row['Drug_Name']
-        cid_smiles = post_pubchem_cid_and_smiles_using_name(drug_name)
-
-        if cid_smiles is not None:
-            working_set.at[index, 'SMILES'] = cid_smiles[1]
-        else:
-            working_set.at[index, 'SMILES'] = '-'
-        print(index)
-
-    load_to_excel(working_set, "Springer_openaccess_Searches_SMILES.xlsx")
+    populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset_Populated.xlsx')
