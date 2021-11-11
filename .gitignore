@@ -3,7 +3,7 @@ venv/
 .idea/
 __pycache__/
 conda_env/
-Excel_Files/Google_Searches
+Dataset_Files/Google_Searches
 
 #Files
 google_searches.py

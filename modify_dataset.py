@@ -15,22 +15,37 @@ def fill_nan(working_set):
     working_set.fillna('', inplace=True)
 
 
+def replace_with_nan(working_set, string_to_replace):
+    working_set.replace(string_to_replace, np.NaN, inplace=True)
+
+
 def remove_unknown_compounds(working_set):
     working_set.drop(working_set[working_set['PubChem_CID'] == '-'].index, inplace=True)
 
 
 def load_from_excel(excel_file, worksheet):
-    path = f"Excel_Files/{excel_file}"
+    path = f"Dataset_Files/{excel_file}"
     return pd.read_excel(path, worksheet)
 
 
 def load_to_excel(working_set, new_file_name):
-    path = f"Excel_Files/{new_file_name}"
+    path = f"Dataset_Files/{new_file_name}"
     working_set.to_excel(path, engine='xlsxwriter')
 
 
+def load_to_csv(working_set, new_file_name):
+    # The large number of synonyms seems to be causing issues when converting the dataframe to csv
+    working_set.drop(columns='Synonyms', inplace=True)
+    working_set.replace("-", np.NaN, inplace=True)
+    path = f"Dataset_Files/{new_file_name}"
+    working_set.to_csv(path)
+
+
 def recalculate_bbb_permeability(working_set, more_than_or_equal_to_value):
-    working_set['Class'] = np.where(working_set['logBB'] >= more_than_or_equal_to_value, 1, 0)
+    for index, row in working_set.iterrows():
+        logBB = row['logBB']
+        if (logBB != '-') and (np.isnan(logBB) is False):
+            working_set.at[index, 'Class'] = 1 if logBB >= more_than_or_equal_to_value else 0
 
 
 # Use if SMILES includes backward or forward slash
@@ -192,7 +207,7 @@ def populate_dataset(excel_file, worksheet, new_file_name):
     working_set = load_from_excel(excel_file, worksheet)
 
     fill_nan(working_set)
-    # recalculate_bbb_permeability(working_set, -1)
+    recalculate_bbb_permeability(working_set, -1)
 
     for index, row in working_set.iterrows():
         if row['PubChem_CID'] == '':
@@ -284,8 +299,11 @@ def populate_dataset(excel_file, worksheet, new_file_name):
     working_set = one_hot_encoding_indications(working_set)
 
     print("Loading everything to excel file")
-    load_to_excel(working_set, new_file_name)
+    load_to_excel(working_set, f"{new_file_name}.xlsx")
+
+    print("Loading everything to csv file")
+    load_to_csv(working_set, f"{new_file_name}.csv")
 
 
 if __name__ == "__main__":
-    populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset_Populated.xlsx')
+    populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset_Populated')
