@@ -23,6 +23,11 @@ def remove_unknown_compounds(working_set):
     working_set.drop(working_set[working_set['PubChem_CID'] == '-'].index, inplace=True)
 
 
+def remove_compounds_without_all_chemical_descriptors(working_set):
+    for descriptor in ['MW', 'TPSA', 'XLogP', 'NHD', 'NHA', 'NRB']:
+        working_set.drop(working_set[working_set[descriptor] == '-'].index, inplace=True)
+
+
 def load_from_excel(excel_file, worksheet):
     path = f"Dataset_Files/{excel_file}"
     return pd.read_excel(path, worksheet)
@@ -36,7 +41,7 @@ def load_to_excel(working_set, new_file_name):
 def load_to_csv(working_set, new_file_name):
     # The large number of synonyms seems to be causing issues when converting the dataframe to csv
     working_set.drop(columns='Synonyms', inplace=True)
-    working_set.replace("-", np.NaN, inplace=True)
+    # working_set.replace("-", np.NaN, inplace=True)
     path = f"Dataset_Files/{new_file_name}"
     working_set.to_csv(path)
 
@@ -286,17 +291,13 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
         print(f"Processed: {index}")
 
-    # Sort and remove any unknown compounds and duplicates
+    # Sort and remove any unknown compounds, compounds without all chemical descriptors and duplicates
     working_set = working_set.sort_values('Name')
     remove_unknown_compounds(working_set)
+    remove_compounds_without_all_chemical_descriptors(working_set)
     working_set.drop_duplicates(subset=['PubChem_CID'], inplace=True)
-    print("Dataset sorted and any duplicates or unknown compounds were removed")
-
-    print("Processing one hot encoding for side effects")
-    working_set = one_hot_encoding_side_effects(working_set)
-
-    print("Processing one hot encoding for indications")
-    working_set = one_hot_encoding_indications(working_set)
+    print(
+        "Dataset sorted and any unknown compounds, compounds without all chemical descriptors and duplicates were removed")
 
     print("Loading everything to excel file")
     load_to_excel(working_set, f"{new_file_name}.xlsx")
@@ -307,3 +308,4 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
 if __name__ == "__main__":
     populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset_Populated')
+

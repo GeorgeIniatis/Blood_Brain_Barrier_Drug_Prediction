@@ -6,6 +6,7 @@ conda_env/
 Dataset_Files/Google_Searches
 
 #Files
+models.py
 google_searches.py
 elsevier_api_calls.py
 config.py
