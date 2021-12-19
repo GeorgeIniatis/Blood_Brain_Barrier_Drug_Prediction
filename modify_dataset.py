@@ -302,10 +302,6 @@ def populate_dataset(excel_file, worksheet, new_file_name):
     print("Loading everything to excel file")
     load_to_excel(working_set, f"{new_file_name}.xlsx")
 
-    print("Loading everything to csv file")
-    load_to_csv(working_set, f"{new_file_name}.csv")
-
 
 if __name__ == "__main__":
     populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset_Populated')
-
