@@ -3,7 +3,7 @@ import streamlit as st
 
 def app():
     project_introduction = st.container()
-    dataset = st.container()
+    about_us = st.container()
 
     with project_introduction:
         st.subheader("Introduction")
@@ -20,5 +20,13 @@ def app():
 
         st.markdown("**Actual Achievements**: ....")
 
-    with dataset:
-        st.header("Dataset")
+    with about_us:
+        st.subheader("About")
+        st.write("""
+                 Created by George Iniatis as part of a 4th year computer science project at the University of Glasgow
+                 Supervised by Dr. Jake Lever 
+                 **ADD HELPFUL LINKS**  
+                 """)
+
+
+

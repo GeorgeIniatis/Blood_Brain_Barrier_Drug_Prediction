@@ -9,7 +9,7 @@ through an object oriented framework.
 import streamlit as st
 
 
-# Define the multipage class to manage the multiple apps in our program
+# Define the multi-page class to manage the multiple apps in our program
 class MultiPage:
     """Framework for combining multiple streamlit applications."""
 
@@ -32,7 +32,7 @@ class MultiPage:
         })
 
     def run(self):
-        # Drodown to select the page to run
+        # Drop-down to select the page to run
         page = st.sidebar.selectbox(
             'App Navigation',
             self.pages,
