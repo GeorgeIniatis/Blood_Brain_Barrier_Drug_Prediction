@@ -1,6 +1,4 @@
 import streamlit as st
-
-# Custom imports
 from multipage import MultiPage
 from pages import home, dataset, classification_models, regression_models, references
 

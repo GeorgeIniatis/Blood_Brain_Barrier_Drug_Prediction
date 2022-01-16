@@ -23,11 +23,14 @@ def app():
 
     with dataset:
         st.subheader("Dataset")
-        dataset = pd.read_excel("data/Dataset_Populated.xlsx", "Data")
-        dataset.insert(7, "Class_Verbose", "")
-        dataset["Class_Verbose"] = np.where(dataset['Class'] == 1.0, "Passes", "Does not Pass")
+        dataset = pd.read_excel("data/Datasets/Dataset.xlsx")
         dataset = dataset.astype(str)
         st.write(dataset.head(10))
+
+        st.subheader("Counts")
+        st.markdown(f"- Total entries: {dataset.count()[0]}  \n"
+                    f"- BBB+ count: {dataset[dataset['Class'] == '1'].count()[0]}  \n"
+                    f"- BBB- count: {dataset[dataset['Class'] == '0'].count()[0]}")
 
         st.subheader("Principal Component Analysis")
         st.markdown(render_svg("data/Plots/pca.svg"), unsafe_allow_html=True)
@@ -38,11 +41,11 @@ def app():
             """
             - Started with the [Singh et al.](https://www.sciencedirect.com/science/article/pii/S1093326319303547) dataset and added on top of it the [Zhao et al](https://pubs.acs.org/doi/10.1021/ci600312d), [Gao et al](https://academic.oup.com/bioinformatics/article/33/6/901/2623044), [Zhang et al](https://link.springer.com/article/10.1007%2Fs11095-008-9609-0) datasets
                - All columns were removed except the ones with the SMILES format, drug Name, experimental logBB value and BBB permeability (Class)
-               - When the experimental logBB was available, BBB permeability was recalculated based on the threshold mentioned above
+               - When the experimental logBB was available, BBB permeability was recalculated based on the threshold suggested by [Li et al.](https://pubs.acs.org/doi/10.1021/ci050135u) (BBB+ if LogBB >= -1)
                - When SMILES was available it was used to retrieve the PubChem_CID, MW, TPSA, xLogP, NHD, NHA, NRB, Synonyms and the drug Name (Essentially the first synonym) using the PubChem API
                - When SMILES wasn't available but the drug Name was, it was used to retrieve the PubChem_CID and SMILES format and then from there all the mentioned descriptors and variables were retrieved
-               - Once the synonyms were retrieved for a specific drug or compound they were looked up in the SIDER dataset. If a synonym was found in the SIDER dataset we retrieved the SIDER_CID and the associated Side_Effects and Indications
-            - Used [PubMed's E-Utilities API](https://www.ncbi.nlm.nih.gov/books/NBK25501/) to get abstracts from PubMed and academic papers from PubMed Central that matched my query "blood brain barrier permeability"
+               - Once the synonyms were retrieved for a specific drug or compound they were looked up in the SIDER dataset. If a synonym was found in the SIDER dataset we retrieved the SIDER_CID and the associated Side_Effects and Indications. Decided to only use the PT (Preferred Term) side effects and indications to make everything simpler. The LLT (Lowest Level Term) side effects are taken from labels of drugs but they can be too complicated. Multiple LLTs can be simplified using a single PT
+            - Used [PubMed's E-Utilities API](https://www.ncbi.nlm.nih.gov/books/NBK25501/) to get abstracts from PubMed and academic papers from PubMed Central that matched multiple queries pointing to a negative brain permeability, in an effort to reduce the class imbalance discovered early on.
                - The various paragraphs of abstracts and academic papers were extracted using XML parsing
                - The sentences were then extracted and multiple regular expressions were used to find matches
                - Matches were then loaded into excel files and manually verified

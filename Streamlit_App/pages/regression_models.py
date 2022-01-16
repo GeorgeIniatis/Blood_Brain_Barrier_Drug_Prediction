@@ -5,4 +5,4 @@ def app():
     regression_models = st.container()
 
     with regression_models:
-        st.header("Regression Models")
+        st.subheader("Regression Models")

@@ -33,8 +33,9 @@ class MultiPage:
 
     def run(self):
         # Drop-down to select the page to run
-        page = st.sidebar.selectbox(
-            'App Navigation',
+        st.sidebar.markdown("# Navigation")
+        page = st.sidebar.radio(
+            'Please select a page',
             self.pages,
             format_func=lambda page: page['title']
         )
