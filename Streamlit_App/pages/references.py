@@ -22,7 +22,7 @@ def app():
 
         st.subheader("Data Sources")
         st.markdown("""
-                    - [SIDER Database](http://sideeffects.embl.de/)
+                    - [SIDER Database](http://sideeffects.embl.de/) (Drug Side-Effects and Indications)
                     - [Singh et al](https://www.sciencedirect.com/science/article/pii/S1093326319303547) (A classification model for blood brain barrier penetration)
                     - [Saber et al](https://www.researchsquare.com/article/rs-29117/v1) (A machine learning model for the prediction of drug permeability across the Blood-Brain Barrier: a comparative approach)
                     - [Zhao et al](https://pubs.acs.org/doi/10.1021/ci600312d) (Predicting Penetration Across the Blood-Brain Barrier from Simple Descriptors and Fragmentation Schemes)
@@ -34,5 +34,6 @@ def app():
         st.markdown(
             """
             - [Misra Turp's Streamlit Playlist](https://www.youtube.com/watch?v=-IM3531b1XU&list=PLM8lYG2MzHmTATqBUZCQW9w816ndU0xHc&ab_channel=M%C4%B1sraTurp)
+            - [Prakhar Rathi's Article on Multi Page Streamlit Applications](https://towardsdatascience.com/creating-multipage-applications-using-streamlit-efficiently-b58a58134030)
             """
         )

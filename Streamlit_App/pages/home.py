@@ -17,7 +17,6 @@ def app():
             **Original Aims**: This project aimed to gather publicly available data on drugs known to cross into the brain and those 
             that cannot and place them into a new dataset and then using that new dataset train machine learning models
             that use a drug's or compound's chemical descriptors to predict whether it can pass into the brain or not""")
-
         st.markdown("""
             **Actual Achievements**: A dataset of 2396 publicly available compounds and drugs was gathered from various academic
             papers and APIs. The models built were split into two categories, Classification and Regression. Classification models

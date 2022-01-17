@@ -29,6 +29,8 @@ def app():
 
         st.subheader("Counts")
         st.markdown(f"- Total entries: {dataset.count()[0]}  \n"
+                    f"- Entries with LogBB Available: {dataset[dataset['logBB'] != '-'].count()[0]}  \n"
+                    f"- Entries with Side Effects and Indications Available: {dataset[dataset['Side_Effects'] != '-'].count()[0]}  \n"
                     f"- BBB+ count: {dataset[dataset['Class'] == '1'].count()[0]}  \n"
                     f"- BBB- count: {dataset[dataset['Class'] == '0'].count()[0]}")
 
