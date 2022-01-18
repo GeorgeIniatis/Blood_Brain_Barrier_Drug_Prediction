@@ -25,8 +25,8 @@ cd_se_i_model_name_to_file = {
     'Stochastic Gradient Descent Classifier': 'optimised_sgdc_cd_se_i.joblib',
 }
 
-all_feature_columns = pd.read_excel("data/Datasets/Dataset_Feature_Columns.xlsx")
-feature_selection_support = np.load("data/feature_selection_support.npy")
+all_feature_columns = pd.read_excel("Streamlit_App/data/Datasets/Dataset_Feature_Columns.xlsx")
+feature_selection_support = np.load("Streamlit_App/data/feature_selection_support.npy")
 feature_selection_dataframe = pd.DataFrame(all_feature_columns.loc[:, feature_selection_support].columns)
 
 side_effects_subset = feature_selection_dataframe.loc[feature_selection_dataframe[0].str.startswith("Side_Effect")]

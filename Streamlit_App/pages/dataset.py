@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import base64
 
 
@@ -23,7 +22,7 @@ def app():
 
     with dataset:
         st.subheader("Dataset")
-        dataset = pd.read_excel("data/Datasets/Dataset.xlsx")
+        dataset = pd.read_excel("Streamlit_App/data/Datasets/Dataset.xlsx")
         dataset = dataset.astype(str)
         st.write(dataset.head(10))
 
@@ -35,7 +34,7 @@ def app():
                     f"- BBB- count: {dataset[dataset['Class'] == '0'].count()[0]}")
 
         st.subheader("Principal Component Analysis")
-        st.markdown(render_svg("data/Plots/pca.svg"), unsafe_allow_html=True)
+        st.markdown(render_svg("Streamlit_App/data/Plots/pca.svg"), unsafe_allow_html=True)
 
     with creation_process:
         st.subheader("Creation Process")

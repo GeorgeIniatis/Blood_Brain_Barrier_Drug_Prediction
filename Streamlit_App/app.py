@@ -8,7 +8,7 @@ app = MultiPage()
 st.set_page_config(layout="wide")
 st.title("Blood-Brain Barrier Prediction")
 
-# Add all your applications (pages) here
+# Pages
 app.add_page("Home", home.app)
 app.add_page("Dataset", dataset.app)
 app.add_page("Classification Models", classification_models.app)
