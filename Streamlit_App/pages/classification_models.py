@@ -108,12 +108,14 @@ def app():
         st.subheader("Category 1: Models with just the Chemical Descriptors used as features")
 
         st.markdown("##### Training Performance")
-        training_performance_cd = pd.read_excel("data/Metrics/Classification_Models_CD_Training_Metrics.xlsx",
-                                                skiprows=1)
+        training_performance_cd = pd.read_excel(
+            "Streamlit_App/data/Metrics/Classification_Models_CD_Training_Metrics.xlsx",
+            skiprows=1)
         render_dataframe_as_table(training_performance_cd)
 
         st.markdown("##### Testing Performance")
-        testing_performance_cd = pd.read_excel("data/Metrics/Classification_Models_CD_Testing_Metrics.xlsx", skiprows=1)
+        testing_performance_cd = pd.read_excel(
+            "Streamlit_App/data/Metrics/Classification_Models_CD_Testing_Metrics.xlsx", skiprows=1)
         render_dataframe_as_table(testing_performance_cd)
 
         with cd_chosen_model_and_inputs:
@@ -129,7 +131,7 @@ def app():
                         st.markdown("##### Result")
 
                         model = load(
-                            f"data/Classification_Models/CD/{cd_model_name_to_file[cd_chosen_model]}")
+                            f"Streamlit_App/data/Classification_Models/CD/{cd_model_name_to_file[cd_chosen_model]}")
                         user_inputs = pd.DataFrame([[mw, tpsa, xlogp, nhd, nha, nrb]],
                                                    columns=['MW', 'TPSA', 'XLogP', 'NHD', 'NHA', 'NRB'])
 
@@ -156,13 +158,15 @@ def app():
         st.dataframe(indications)
 
         st.markdown("##### Training Performance With Feature Selection")
-        training_performance_cd_se_i = pd.read_excel("data/Metrics/Classification_Models_CD_SE_I_Training_Metrics.xlsx",
-                                                     skiprows=1)
+        training_performance_cd_se_i = pd.read_excel(
+            "Streamlit_App/data/Metrics/Classification_Models_CD_SE_I_Training_Metrics.xlsx",
+            skiprows=1)
         render_dataframe_as_table(training_performance_cd_se_i)
 
         st.markdown("##### Testing Performance With Feature Selection")
-        testing_performance_cd_se_i = pd.read_excel("data/Metrics/Classification_Models_CD_SE_I_Testing_Metrics.xlsx",
-                                                    skiprows=1)
+        testing_performance_cd_se_i = pd.read_excel(
+            "Streamlit_App/data/Metrics/Classification_Models_CD_SE_I_Testing_Metrics.xlsx",
+            skiprows=1)
         render_dataframe_as_table(testing_performance_cd_se_i)
 
         with cd_se_i_chosen_model_and_inputs:
@@ -178,7 +182,7 @@ def app():
                         st.markdown("##### Result")
 
                         model = load(
-                            f"data/Classification_Models/CD_SE_I/{cd_se_i_model_name_to_file[cd_se_i_chosen_model]}")
+                            f"Streamlit_App/data/Classification_Models/CD_SE_I/{cd_se_i_model_name_to_file[cd_se_i_chosen_model]}")
 
                         user_inputs = pd.DataFrame(columns=feature_selection_dataframe[0])
                         user_inputs.loc[0, "MW"] = mw
