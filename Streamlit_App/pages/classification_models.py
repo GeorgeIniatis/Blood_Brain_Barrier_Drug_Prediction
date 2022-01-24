@@ -47,12 +47,18 @@ def render_dataframe_as_table(dataframe):
 
 
 def user_inputs_section(category="cd"):
-    mw = st.number_input("Molecular Weight (MW)", min_value=0.0, key=category)
-    tpsa = st.number_input("Topological Polar Surface Area (TPSA)", min_value=0.0, key=category)
-    xlogp = st.number_input("XLogP3-AA (XLogP)", min_value=0.0, key=category)
-    nhd = st.number_input("Hydrogen Bond Donor Count (NHD)", min_value=0.0, key=category)
-    nha = st.number_input("Hydrogen Bond Acceptor Count (NHA)", min_value=0.0, key=category)
-    nrb = st.number_input("Rotatable Bond Count (NRB)", min_value=0.0, key=category)
+    mw = st.number_input("Molecular Weight (MW)", min_value=0.0, key=category,
+                         help="Molecular weight or molecular mass refers to the mass of a molecule. It is calculated as the sum of the mass of each constituent atom multiplied by the number of atoms of that element in the molecular formula.")
+    tpsa = st.number_input("Topological Polar Surface Area (TPSA)", min_value=0.0, key=category,
+                           help="The topological polar surface area (TPSA) of a molecule is defined as the surface sum over all polar atoms in a molecule.")
+    xlogp = st.number_input("XLogP3-AA (XLogP)", min_value=0.0, key=category,
+                            help="Computed Octanol/Water Partition Coefficient")
+    nhd = st.number_input("Hydrogen Bond Donor Count (NHD)", min_value=0.0, key=category,
+                          help="The number of hydrogen bond donors in the structure.")
+    nha = st.number_input("Hydrogen Bond Acceptor Count (NHA)", min_value=0.0, key=category,
+                          help="The number of hydrogen bond acceptors in the structure.")
+    nrb = st.number_input("Rotatable Bond Count (NRB)", min_value=0.0, key=category,
+                          help="A rotatable bond is defined as any single-order non-ring bond, where atoms on either side of the bond are in turn bound to nonterminal heavy (i.e., non-hydrogen) atoms. That is, where rotation around the bond axis changes the overall shape of the molecule, and generates conformers which can be distinguished by standard fast spectroscopic methods.")
     side_effects_chosen = None
     indications_chosen = None
 
@@ -120,6 +126,11 @@ def app():
 
         with cd_chosen_model_and_inputs:
             st.markdown("##### Make Predictions")
+            st.markdown("""
+                        - Please choose a model and enter a decimal number for each of the 6 chemical descriptors
+                        - Helpful definitions are available for each descriptor. To access them click the question mark icon
+                        """)
+
             cd_chosen_model = st.selectbox('Please choose a model to make predictions',
                                            cd_model_name_to_file.keys(),
                                            key="cd")
@@ -171,6 +182,11 @@ def app():
 
         with cd_se_i_chosen_model_and_inputs:
             st.markdown("##### Make Predictions")
+            st.markdown("""
+                        - Please choose a model and enter a decimal number for each of the 6 chemical descriptors
+                        - Helpful definitions are available for each descriptor. To access them click the question mark icon
+                        """)
+
             cd_se_i_chosen_model = st.selectbox('Please choose a model to make predictions',
                                                 cd_se_i_model_name_to_file.keys(),
                                                 key="cd_se_i")
