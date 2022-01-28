@@ -3,4 +3,4 @@ The brain is surrounded by a permeable boundary that prevents many pathogens fro
 
 This project aims to gather publicly available data on drugs known to cross into the brain and those that cannot and place them into a new dataset. Then using this newly created dataset, build a machine learning system that uses a drug’s chemical structure to predict whether it can pass the blood-brain barrier.
 
-
+(Streamlit Link)[https://share.streamlit.io/georgeiniatis/blood_brain_barrier_drug_prediction/main/Streamlit_App/app.py]
