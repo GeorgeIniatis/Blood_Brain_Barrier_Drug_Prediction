@@ -1,7 +1,10 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 from joblib import load
 import numpy as np
+import eli5
+from lime.lime_tabular import LimeTabularExplainer
 
 cd_model_name_to_file = {
     '-': '-',
@@ -25,7 +28,7 @@ cd_se_i_model_name_to_file = {
     'Stochastic Gradient Descent Classifier': 'optimised_sgdc_cd_se_i.joblib',
 }
 
-all_feature_columns = pd.read_excel("Streamlit_App/data/Datasets/Dataset_Feature_Columns.xlsx")
+all_feature_columns = pd.read_csv("Streamlit_App/data/Datasets/Dataset_Feature_Columns.csv")
 feature_selection_support = np.load("Streamlit_App/data/feature_selection_support.npy")
 feature_selection_dataframe = pd.DataFrame(all_feature_columns.loc[:, feature_selection_support].columns)
 
@@ -38,6 +41,45 @@ indications_subset = feature_selection_dataframe.loc[feature_selection_dataframe
 indications = indications_subset[0].str.replace("Indication_", "")
 indications.reset_index(drop=True, inplace=True)
 indications.rename('Indications', inplace=True)
+
+X_train_cd = pd.read_csv("Streamlit_App/data/Datasets/X_train_cd.csv", index_col=0)
+y_train_cd = pd.read_csv("Streamlit_App/data/Datasets/y_train_cd.csv", index_col=0)
+X_train_cd_se_i = pd.read_csv("Streamlit_App/data/Datasets/X_train_cd_se_i.csv", index_col=0)
+y_train_cd_se_i = pd.read_csv("Streamlit_App/data/Datasets/y_train_cd_se_i.csv", index_col=0)
+
+
+def model_weights_classification(model, classification_group):
+    if classification_group == 'cd':
+        return eli5.format_as_dataframe(eli5.explain_weights(model,
+                                                             feature_names=X_train_cd.columns,
+                                                             target_names={1: "BBB+", 0: "BBB-"}))
+    elif classification_group == 'cd_se_i':
+        return eli5.format_as_dataframe(eli5.explain_weights(model,
+                                                             feature_names=X_train_cd_se_i.loc[:,
+                                                                           feature_selection_support].columns,
+                                                             target_names={1: "BBB+", 0: "BBB-"}))
+
+    else:
+        raise ValueError("Invalid group. Please choose 'cd' or 'cd_se_i'")
+
+
+def get_lime_explainer_classification(classification_group):
+    if classification_group == 'cd':
+        X_train = X_train_cd
+        y_train = y_train_cd
+    elif classification_group == 'cd_se_i':
+        X_train = X_train_cd_se_i.loc[:, feature_selection_support]
+        y_train = y_train_cd_se_i
+    else:
+        raise ValueError("Invalid group. Please choose 'cd' or 'cd_se_i'")
+
+    explainer = LimeTabularExplainer(training_data=np.array(X_train),
+                                     mode='classification',
+                                     feature_names=list(X_train.columns),
+                                     training_labels=y_train,
+                                     class_names=['BBB-', 'BBB+'],
+                                     random_state=42)
+    return explainer
 
 
 def render_dataframe_as_table(dataframe):
@@ -69,12 +111,13 @@ def user_inputs_section(category="cd"):
     return mw, tpsa, xlogp, nhd, nha, nrb, side_effects_chosen, indications_chosen
 
 
-def result_column_section(model, model_name, user_inputs):
+def result_column_section(model, model_name, user_inputs, explainer):
+    st.markdown("##### Result")
     if model_name not in ["Support Vector Classification", "Stochastic Gradient Descent Classifier"]:
         prediction_probability = model.predict_proba(user_inputs)
         st.markdown(
-            f"Probability that it cannot enter the brain: **{prediction_probability[0][0]}**")
-        st.markdown(f"Probability that it can enter the brain: **{prediction_probability[0][1]}**")
+            f"Probability that it cannot enter the brain: **{prediction_probability[0][0]:.5f}**")
+        st.markdown(f"Probability that it can enter the brain: **{prediction_probability[0][1]:.5f}**")
 
     prediction = model.predict(user_inputs)
     if prediction == 1:
@@ -85,6 +128,15 @@ def result_column_section(model, model_name, user_inputs):
         st.markdown("""
                     The model has predicted that the compound/drug with the specific chemical properties you have specified **Cannot cross the BBB**
                     """)
+
+    if model_name not in ["Support Vector Classification", "Stochastic Gradient Descent Classifier"]:
+        st.markdown("##### Prediction Explanation")
+        exp = explainer.explain_instance(user_inputs.squeeze(), model.predict_proba, num_features=6)
+        components.html(exp.as_html(show_table=False, show_all=True), height=300)
+
+    if model_name not in ["Dummy Classifier", "Support Vector Classification", "K-Nearest Neighbour Classifier"]:
+        st.markdown("##### Model Weights")
+        st.write(model_weights_classification(model, 'cd'))
 
 
 def app():
@@ -139,14 +191,13 @@ def app():
 
                 if st.button("Predict", key="cd"):
                     with cd_prediction_metrics:
-                        st.markdown("##### Result")
-
                         model = load(
                             f"Streamlit_App/data/Classification_Models/CD/{cd_model_name_to_file[cd_chosen_model]}")
                         user_inputs = pd.DataFrame([[mw, tpsa, xlogp, nhd, nha, nrb]],
                                                    columns=['MW', 'TPSA', 'XLogP', 'NHD', 'NHA', 'NRB'])
+                        explainer = get_lime_explainer_classification('cd')
 
-                        result_column_section(model, cd_chosen_model, user_inputs)
+                        result_column_section(model, cd_chosen_model, user_inputs, explainer)
 
     with cd_se_i_models:
         st.subheader("Category 2: Models with Chemical Descriptors, Side Effects and Indications used as features")
@@ -213,4 +264,6 @@ def app():
                             user_inputs.loc[0, f"Indication_{indication}"] = 1
                         user_inputs.fillna(0, inplace=True)
 
-                        result_column_section(model, cd_se_i_chosen_model, user_inputs)
+                        explainer = get_lime_explainer_classification('cd_se_i')
+
+                        result_column_section(model, cd_se_i_chosen_model, user_inputs, explainer)

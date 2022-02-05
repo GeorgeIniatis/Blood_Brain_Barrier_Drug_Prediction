@@ -22,8 +22,7 @@ def app():
 
     with dataset:
         st.subheader("Dataset")
-        dataset = pd.read_excel("Streamlit_App/data/Datasets/Dataset.xlsx")
-        dataset = dataset.astype(str)
+        dataset = pd.read_csv("Streamlit_App/data/Datasets/Dataset.csv")
         st.write(dataset.head(10))
 
         st.subheader("Counts")
