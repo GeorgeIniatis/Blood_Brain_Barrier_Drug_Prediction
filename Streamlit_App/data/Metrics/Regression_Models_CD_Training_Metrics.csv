@@ -1,0 +1,9 @@
+﻿Regression Models – Chemical Descriptors,,,,
+Set,Model,Negated Mean Absolute Error ,R2 Score,Permutation Testing P-Value
+Training Set (320 Compounds),Dummy Regressor,-0.62085,0.00000,NA
+Training Set (320 Compounds),Linear Regression,-0.50099,0.19940,0.00990
+Training Set (320 Compounds),Support Vector Regression,-0.46663,0.26939,0.00990
+Training Set (320 Compounds),K-Nearest Neighbour Regressor,-0.50633,0.22719,0.00990
+Training Set (320 Compounds),Random Forest Regressor,-0.49887,0.12505,0.00990
+Training Set (320 Compounds),Decision Tree Regressor,-0.62122,-1.25636,0.16832
+Training Set (320 Compounds),Stochastic Gradient Descent Regressor,-0.49769,0.26196,0.00990

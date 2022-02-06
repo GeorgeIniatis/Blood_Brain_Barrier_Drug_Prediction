@@ -1,0 +1,9 @@
+﻿Regression Models – Chemical Descriptors,,,
+Set,Model,Negated Mean Absolute Error ,R2 Score
+Test Set (81 Compounds),Dummy Regressor,-0.52761,-0.02054
+Test Set (81 Compounds),Linear Regression,-0.42579,0.34680
+Test Set (81 Compounds),Support Vector Regression,-0.39678,0.47461
+Test Set (81 Compounds),K-Nearest Neighbour Regressor,-0.46630,0.25409
+Test Set (81 Compounds),Random Forest Regressor,-0.42440,0.30226
+Test Set (81 Compounds),Decision Tree Regressor,-0.44500,0.26441
+Test Set (81 Compounds),Stochastic Gradient Descent Regressor,-0.43385,0.32837

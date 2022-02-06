@@ -15,7 +15,6 @@ cd_model_name_to_file = {
 
 def render_dataframe_as_table(dataframe):
     dataframe = dataframe.round(5)
-    dataframe = dataframe.astype(str)
     st.table(dataframe)
 
 
@@ -55,16 +54,16 @@ def app():
 
     with cd_models:
         st.markdown("##### Training Performance")
-        training_performance_cd = pd.read_excel(
-            "Streamlit_App/data/Metrics/Regression_Models_CD_Training_Metrics.xlsx",
+        training_performance_cd = pd.read_csv(
+            "Streamlit_App/data/Metrics/Regression_Models_CD_Training_Metrics.csv",
             skiprows=1)
         render_dataframe_as_table(training_performance_cd)
         st.markdown(
             "*The Decision Tree Regressor model won't be available for predictions since it is not robust (Permutation Testing P-Value > 0.05)")
 
         st.markdown("##### Testing Performance")
-        testing_performance_cd = pd.read_excel(
-            "Streamlit_App/data/Metrics/Regression_Models_CD_Testing_Metrics.xlsx", skiprows=1)
+        testing_performance_cd = pd.read_csv(
+            "Streamlit_App/data/Metrics/Regression_Models_CD_Testing_Metrics.csv", skiprows=1)
         render_dataframe_as_table(testing_performance_cd)
 
     with cd_chosen_model_and_inputs:

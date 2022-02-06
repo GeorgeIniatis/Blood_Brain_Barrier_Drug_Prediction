@@ -1,0 +1,9 @@
+﻿Classification Models – Chemical Descriptors,,,,,,
+Set,Model,Accuracy ,Recall,Precision,F1,Matthews Correlation Coefficient
+Test Set (69 Compounds),Dummy Classifier,0.57971,1.00000,0.57971,0.73394,0.00000
+Test Set (69 Compounds),Logistic Regression,0.60870,0.87500,0.61404,0.72165,0.15156
+Test Set (69 Compounds),Support Vector Classification,0.60870,0.87500,0.61404,0.72165,0.15156
+Test Set (69 Compounds),K-Nearest Neighbour Classifier,0.78261,0.92500,0.75510,0.83146,0.55618
+Test Set (69 Compounds),Random Forest Classifier,0.81159,0.92500,0.78723,0.85057,0.61451
+Test Set (69 Compounds),Decision Tree Classifier,0.79710,0.85000,0.80952,0.82927,0.58068
+Test Set (69 Compounds),Stochastic Gradient Descent Classifier,0.68116,0.80000,0.69565,0.74419,0.33218

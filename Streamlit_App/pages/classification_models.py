@@ -2,6 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 from joblib import load
+import matplotlib.pyplot as plt
 import numpy as np
 import eli5
 from lime.lime_tabular import LimeTabularExplainer
@@ -84,7 +85,6 @@ def get_lime_explainer_classification(classification_group):
 
 def render_dataframe_as_table(dataframe):
     dataframe = dataframe.round(5)
-    dataframe = dataframe.astype(str)
     st.table(dataframe)
 
 
@@ -111,7 +111,7 @@ def user_inputs_section(category="cd"):
     return mw, tpsa, xlogp, nhd, nha, nrb, side_effects_chosen, indications_chosen
 
 
-def result_column_section(model, model_name, user_inputs, explainer):
+def result_column_section(model, model_name, user_inputs, classification_group):
     st.markdown("##### Result")
     if model_name not in ["Support Vector Classification", "Stochastic Gradient Descent Classifier"]:
         prediction_probability = model.predict_proba(user_inputs)
@@ -130,13 +130,18 @@ def result_column_section(model, model_name, user_inputs, explainer):
                     """)
 
     if model_name not in ["Support Vector Classification", "Stochastic Gradient Descent Classifier"]:
+        explainer = get_lime_explainer_classification(classification_group)
+        if classification_group == 'cd':
+            exp = explainer.explain_instance(user_inputs.squeeze(), model.predict_proba, num_features=6)
+        else:
+            exp = explainer.explain_instance(user_inputs.squeeze(), model.predict_proba, num_features=20)
+
         st.markdown("##### Prediction Explanation")
-        exp = explainer.explain_instance(user_inputs.squeeze(), model.predict_proba, num_features=6)
-        components.html(exp.as_html(show_table=False, show_all=True), height=300)
+        st.pyplot(exp.as_pyplot_figure())
 
     if model_name not in ["Dummy Classifier", "Support Vector Classification", "K-Nearest Neighbour Classifier"]:
         st.markdown("##### Model Weights")
-        st.write(model_weights_classification(model, 'cd'))
+        st.write(model_weights_classification(model, classification_group))
 
 
 def app():
@@ -144,6 +149,7 @@ def app():
     cd_models = st.container()
     cd_chosen_model_and_inputs, cd_prediction_metrics = st.columns(2)
     cd_se_i_models = st.container()
+    cd_se_i_important_side_effects, cd_se_i_important_indications = st.columns(2)
     cd_se_i_chosen_model_and_inputs, cd_se_i_prediction_metrics = st.columns(2)
 
     with useful_info:
@@ -166,14 +172,14 @@ def app():
         st.subheader("Category 1: Models with just the Chemical Descriptors used as features")
 
         st.markdown("##### Training Performance")
-        training_performance_cd = pd.read_excel(
-            "Streamlit_App/data/Metrics/Classification_Models_CD_Training_Metrics.xlsx",
+        training_performance_cd = pd.read_csv(
+            "Streamlit_App/data/Metrics/Classification_Models_CD_Training_Metrics.csv",
             skiprows=1)
         render_dataframe_as_table(training_performance_cd)
 
         st.markdown("##### Testing Performance")
-        testing_performance_cd = pd.read_excel(
-            "Streamlit_App/data/Metrics/Classification_Models_CD_Testing_Metrics.xlsx", skiprows=1)
+        testing_performance_cd = pd.read_csv(
+            "Streamlit_App/data/Metrics/Classification_Models_CD_Testing_Metrics.csv", skiprows=1)
         render_dataframe_as_table(testing_performance_cd)
 
         with cd_chosen_model_and_inputs:
@@ -195,9 +201,8 @@ def app():
                             f"Streamlit_App/data/Classification_Models/CD/{cd_model_name_to_file[cd_chosen_model]}")
                         user_inputs = pd.DataFrame([[mw, tpsa, xlogp, nhd, nha, nrb]],
                                                    columns=['MW', 'TPSA', 'XLogP', 'NHD', 'NHA', 'NRB'])
-                        explainer = get_lime_explainer_classification('cd')
 
-                        result_column_section(model, cd_chosen_model, user_inputs, explainer)
+                        result_column_section(model, cd_chosen_model, user_inputs, 'cd')
 
     with cd_se_i_models:
         st.subheader("Category 2: Models with Chemical Descriptors, Side Effects and Indications used as features")
@@ -213,28 +218,31 @@ def app():
                        - 196 of the side effects were kept
                        - 15 of indications were kept 
                     """)
-        st.markdown("##### Important Side Effects")
-        st.dataframe(side_effects)
+        with cd_se_i_important_side_effects:
+            st.markdown("##### Important Side Effects")
+            st.dataframe(side_effects)
 
-        st.markdown("##### Important Indications")
-        st.dataframe(indications)
+        with cd_se_i_important_indications:
+            st.markdown("##### Important Indications")
+            st.dataframe(indications)
 
         st.markdown("##### Training Performance With Feature Selection")
-        training_performance_cd_se_i = pd.read_excel(
-            "Streamlit_App/data/Metrics/Classification_Models_CD_SE_I_Training_Metrics.xlsx",
+        training_performance_cd_se_i = pd.read_csv(
+            "Streamlit_App/data/Metrics/Classification_Models_CD_SE_I_Training_Metrics.csv",
             skiprows=1)
         render_dataframe_as_table(training_performance_cd_se_i)
 
         st.markdown("##### Testing Performance With Feature Selection")
-        testing_performance_cd_se_i = pd.read_excel(
-            "Streamlit_App/data/Metrics/Classification_Models_CD_SE_I_Testing_Metrics.xlsx",
+        testing_performance_cd_se_i = pd.read_csv(
+            "Streamlit_App/data/Metrics/Classification_Models_CD_SE_I_Testing_Metrics.csv",
             skiprows=1)
         render_dataframe_as_table(testing_performance_cd_se_i)
 
         with cd_se_i_chosen_model_and_inputs:
             st.markdown("##### Make Predictions")
             st.markdown("""
-                        - Please choose a model and enter a decimal number for each of the 6 chemical descriptors
+                        - Please choose a model, enter a decimal number for each of the 6 chemical descriptors and then 
+                        pick one or multiple side effects and indications
                         - Helpful definitions are available for each descriptor. To access them click the question mark icon
                         """)
 
@@ -246,8 +254,6 @@ def app():
 
                 if st.button("Predict", key="cd_se_i"):
                     with cd_se_i_prediction_metrics:
-                        st.markdown("##### Result")
-
                         model = load(
                             f"Streamlit_App/data/Classification_Models/CD_SE_I/{cd_se_i_model_name_to_file[cd_se_i_chosen_model]}")
 
@@ -264,6 +270,4 @@ def app():
                             user_inputs.loc[0, f"Indication_{indication}"] = 1
                         user_inputs.fillna(0, inplace=True)
 
-                        explainer = get_lime_explainer_classification('cd_se_i')
-
-                        result_column_section(model, cd_se_i_chosen_model, user_inputs, explainer)
+                        result_column_section(model, cd_se_i_chosen_model, user_inputs, 'cd_se_i')

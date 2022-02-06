@@ -1,0 +1,9 @@
+﻿Classification Models – Chemical Descriptors,,,,,,,
+Set,Model,Accuracy ,Recall,Precision,F1,Matthews Correlation Coefficient,Permutation Testing P-Value
+Training Set (2327 Compounds),Dummy Classifier,0.73528,1.00000,0.73528,0.84745,0.00000,NA
+Training Set (2327 Compounds),Logistic Regression,0.84956,0.96201,0.85357,0.90414,0.58392,0.00990
+Training Set (2327 Compounds),Support Vector Classification,0.84698,0.97136,0.84507,0.90354,0.57423,0.00990
+Training Set (2327 Compounds),K-Nearest Neighbour Classifier,0.87191,0.95850,0.87917,0.91683,0.65329,0.00990
+Training Set (2327 Compounds),Random Forest Classifier,0.87019,0.94680,0.88542,0.91475,0.65203,0.00990
+Training Set (2327 Compounds),Decision Tree Classifier,0.82337,0.89012,0.87286,0.88095,0.53999,0.00990
+Training Set (2327 Compounds),Stochastic Gradient Descent Classifier,0.85385,0.96435,0.85673,0.90690,0.59678,0.00990

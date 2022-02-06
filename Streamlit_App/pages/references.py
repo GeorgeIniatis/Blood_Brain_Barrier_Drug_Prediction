@@ -12,6 +12,8 @@ def app():
                     - [Numpy](https://numpy.org/)
                     - [Pandas](https://pandas.pydata.org/)
                     - [Plotly](https://plotly.com/)
+                    - [ELI5](https://eli5.readthedocs.io/en/latest/overview.html)
+                    - [LIME](https://lime-ml.readthedocs.io/en/latest/)
                     """)
 
         st.subheader("APIs")
@@ -35,5 +37,6 @@ def app():
             """
             - [Misra Turp's Streamlit Playlist](https://www.youtube.com/watch?v=-IM3531b1XU&list=PLM8lYG2MzHmTATqBUZCQW9w816ndU0xHc&ab_channel=M%C4%B1sraTurp)
             - [Prakhar Rathi's Article on Multi Page Streamlit Applications](https://towardsdatascience.com/creating-multipage-applications-using-streamlit-efficiently-b58a58134030)
+            - [Renu Khandelwal's Article on LIME](https://towardsdatascience.com/developing-trust-in-machine-learning-models-predictions-e49b0064abab)
             """
         )

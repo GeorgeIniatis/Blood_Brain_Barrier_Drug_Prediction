@@ -1,0 +1,9 @@
+﻿"Classification Models – Chemical Descriptors, Side Effects and Indications With Feature Selection",,,,,,
+Set,Model,Accuracy ,Recall,Precision,F1,Matthews Correlation Coefficient
+Testing Set (69 Compounds),Dummy Classifier,0.57971,1.00000,0.57971,0.73394,0.00000
+Testing Set (69 Compounds),Logistic Regression,0.71014,0.70000,0.77778,0.73684,0.41911
+Testing Set (69 Compounds),Support Vector Classification,0.76812,0.77500,0.81579,0.79487,0.52953
+Testing Set (69 Compounds),K-Nearest Neighbour Classifier,0.82609,0.85000,0.85000,0.85000,0.64310
+Testing Set (69 Compounds),Random Forest Classifier,0.84058,0.87500,0.85366,0.86420,0.67159
+Testing Set (69 Compounds),Decision Tree Classifier,0.73913,0.72500,0.80556,0.76316,0.47789
+Testing Set (69 Compounds),Stochastic Gradient Descent Classifier,0.73913,0.77500,0.77500,0.77500,0.46466
