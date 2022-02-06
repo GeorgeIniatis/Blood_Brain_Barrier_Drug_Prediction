@@ -209,10 +209,8 @@ def app():
 
         st.markdown("##### Feature Selection")
         st.markdown("""
-                    - Feature selection was used in order to find the most chemical descriptors, side effects and indications 
-                    and to improve the models' training times
-                    - [Recursive Feature Elimination with Cross Validation (RFECV)](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFECV.html) 
-                    was used with a 10-Fold Cross Validation and a Random Forest Classifier optimised for F1 score
+                    - Feature selection was used in order to find the most chemical descriptors, side effects and indications and to improve the models' training times
+                    - [Recursive Feature Elimination with Cross Validation (RFECV)](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFECV.html) was used with a 10-Fold Cross Validation and a Random Forest Classifier optimised for F1 score
                        - Features were reduced from 4353 to 217
                        - All 6 chemical descriptors were kept
                        - 196 of the side effects were kept
@@ -241,8 +239,7 @@ def app():
         with cd_se_i_chosen_model_and_inputs:
             st.markdown("##### Make Predictions")
             st.markdown("""
-                        - Please choose a model, enter a decimal number for each of the 6 chemical descriptors and then 
-                        pick one or multiple side effects and indications
+                        - Please choose a model, enter a decimal number for each of the 6 chemical descriptors and then pick one or multiple side effects and indications
                         - Helpful definitions are available for each descriptor. To access them click the question mark icon
                         """)
 

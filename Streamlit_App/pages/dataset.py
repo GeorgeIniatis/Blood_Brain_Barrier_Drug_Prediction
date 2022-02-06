@@ -29,8 +29,8 @@ def app():
         st.markdown(f"- Total entries: {dataset.count()[0]}  \n"
                     f"- Entries with LogBB Available: {dataset[dataset['logBB'] != '-'].count()[0]}  \n"
                     f"- Entries with Side Effects and Indications Available: {dataset[dataset['Side_Effects'] != '-'].count()[0]}  \n"
-                    f"- BBB+ count: {dataset[dataset['Class'] == '1'].count()[0]}  \n"
-                    f"- BBB- count: {dataset[dataset['Class'] == '0'].count()[0]}")
+                    f"- BBB+ count: {dataset[dataset['Class'] == 1].count()[0]}  \n"
+                    f"- BBB- count: {dataset[dataset['Class'] == 0].count()[0]}")
 
         st.subheader("Principal Component Analysis")
         st.markdown(render_svg("Streamlit_App/data/Plots/pca.svg"), unsafe_allow_html=True)
