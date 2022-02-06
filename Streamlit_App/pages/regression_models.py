@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 from joblib import load
+import numpy as np
+import eli5
+from lime.lime_tabular import LimeTabularExplainer
 
 cd_model_name_to_file = {
     '-': '-',
@@ -11,6 +14,24 @@ cd_model_name_to_file = {
     'Random Forest Regressor': 'optimised_rfr_cd.joblib',
     'Stochastic Gradient Descent Regressor': 'optimised_sgdr_cd.joblib',
 }
+
+X_train_regression = pd.read_csv("Streamlit_App/data/Datasets/X_train_regression.csv", index_col=0)
+
+
+def model_weights_regression(model):
+    return eli5.format_as_dataframe(eli5.explain_weights(model,
+                                                         feature_names=X_train_regression.columns,
+                                                         target_names={'y': "logBB"}))
+
+
+def get_lime_explainer_regression():
+    X_train = X_train_regression
+
+    explainer = LimeTabularExplainer(training_data=np.array(X_train),
+                                     mode='regression',
+                                     feature_names=list(X_train.columns),
+                                     random_state=42)
+    return explainer
 
 
 def render_dataframe_as_table(dataframe):
@@ -88,7 +109,7 @@ def app():
                                                columns=['MW', 'TPSA', 'XLogP', 'NHD', 'NHA', 'NRB'])
 
                     predicted_logBB = model.predict(user_inputs)[0]
-                    st.markdown(f"Predicted LogBB: **{predicted_logBB}**")
+                    st.markdown(f"Predicted LogBB: **{predicted_logBB:.5f}**")
 
                     if predicted_logBB >= -1:
                         st.markdown("""
@@ -98,3 +119,14 @@ def app():
                         st.markdown("""
                                     The model has predicted that the compound/drug with the specific chemical properties you have specified **Cannot cross the BBB**
                                     """)
+
+                    explainer = get_lime_explainer_regression()
+                    exp = explainer.explain_instance(user_inputs.squeeze(), model.predict, num_features=6)
+
+                    st.markdown("##### Prediction Explanation")
+                    st.pyplot(exp.as_pyplot_figure())
+
+                    if cd_chosen_model not in ["Dummy Regressor", "Support Vector Regression",
+                                               "K-Nearest Neighbour Regressor"]:
+                        st.markdown("##### Model Weights")
+                        st.write(model_weights_regression(model))
