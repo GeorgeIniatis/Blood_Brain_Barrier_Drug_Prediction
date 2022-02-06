@@ -1,0 +1,42 @@
+﻿Classification Models – Chemical Descriptors,,,,,,,
+Set,Model,Accuracy ,Recall,Precision,F1,Matthews Correlation Coefficient,Permutation Testing P-Value
+Training Set (2327 Compounds),Dummy Classifier,0.73528,1.00000,0.73528,0.84745,0.00000,-
+Training Set (2327 Compounds),Logistic Regression,0.84956,0.96201,0.85357,0.90414,0.58392,0.00990
+Training Set (2327 Compounds),Support Vector Classification,0.84698,0.97136,0.84507,0.90354,0.57423,0.00990
+Training Set (2327 Compounds),K-Nearest Neighbour Classifier,0.87191,0.95850,0.87917,0.91683,0.65329,0.00990
+Training Set (2327 Compounds),Random Forest Classifier,0.87019,0.94680,0.88542,0.91475,0.65203,0.00990
+Training Set (2327 Compounds),Decision Tree Classifier,0.82337,0.89012,0.87286,0.88095,0.53999,0.00990
+Training Set (2327 Compounds),Stochastic Gradient Descent Classifier,0.85385,0.96435,0.85673,0.90690,0.59678,0.00990
+,,,,,,,
+,,,,,,,
+Classification Models – Chemical Descriptors,,,,,,,
+Set,Model,Accuracy ,Recall,Precision,F1,Matthews Correlation Coefficient,
+Test Set (69 Compounds),Dummy Classifier,0.57971,1.00000,0.57971,0.73394,0.00000,
+Test Set (69 Compounds),Logistic Regression,0.60870,0.87500,0.61404,0.72165,0.15156,
+Test Set (69 Compounds),Support Vector Classification,0.60870,0.87500,0.61404,0.72165,0.15156,
+Test Set (69 Compounds),K-Nearest Neighbour Classifier,0.78261,0.92500,0.75510,0.83146,0.55618,
+Test Set (69 Compounds),Random Forest Classifier,0.81159,0.92500,0.78723,0.85057,0.61451,
+Test Set (69 Compounds),Decision Tree Classifier,0.79710,0.85000,0.80952,0.82927,0.58068,
+Test Set (69 Compounds),Stochastic Gradient Descent Classifier,0.68116,0.80000,0.69565,0.74419,0.33218,
+,,,,,,,
+,,,,,,,
+"Classification Models – Chemical Descriptors, Side Effects and Indications With Feature Selection",,,,,,,
+Set,Model,Accuracy ,Recall,Precision,F1,Matthews Correlation Coefficient,Permutation Testing P-Value
+Training Set (276 Compounds),Dummy Classifier,0.57609,1.00000,0.57609,0.73103,0.00000,-
+Training Set (276 Compounds),Logistic Regression,0.79392,0.81750,0.82454,0.81699,0.58702,0.00990
+Training Set (276 Compounds),Support Vector Classification,0.81151,0.87917,0.81472,0.84270,0.61808,0.00990
+Training Set (276 Compounds),K-Nearest Neighbour Classifier,0.75331,0.84125,0.76576,0.79737,0.49510,0.00990
+Training Set (276 Compounds),Random Forest Classifier,0.81812,0.89167,0.82671,0.85000,0.64495,0.00990
+Training Set (276 Compounds),Decision Tree Classifier,0.72844,0.78542,0.76210,0.76873,0.44237,0.00990
+Training Set (276 Compounds),Stochastic Gradient Descent Classifier,0.78254,0.82375,0.80712,0.81098,0.55927,0.00990
+,,,,,,,
+,,,,,,,
+"Classification Models – Chemical Descriptors, Side Effects and Indications With Feature Selection",,,,,,,
+Set,Model,Accuracy ,Recall,Precision,F1,Matthews Correlation Coefficient,
+Testing Set (69 Compounds),Dummy Classifier,0.57971,1.00000,0.57971,0.73394,0.00000,
+Testing Set (69 Compounds),Logistic Regression,0.71014,0.70000,0.77778,0.73684,0.41911,
+Testing Set (69 Compounds),Support Vector Classification,0.76812,0.77500,0.81579,0.79487,0.52953,
+Testing Set (69 Compounds),K-Nearest Neighbour Classifier,0.82609,0.85000,0.85000,0.85000,0.64310,
+Testing Set (69 Compounds),Random Forest Classifier,0.84058,0.87500,0.85366,0.86420,0.67159,
+Testing Set (69 Compounds),Decision Tree Classifier,0.73913,0.72500,0.80556,0.76316,0.47789,
+Testing Set (69 Compounds),Stochastic Gradient Descent Classifier,0.73913,0.77500,0.77500,0.77500,0.46466,

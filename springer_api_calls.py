@@ -37,6 +37,7 @@ def search_for_matches(xml, object_name, paragraphs):
 
     return temp_list
 
+
 # For meta/v2 the max number of returned records is 100
 # For openaccess the max number of returned records is 20
 def perform_searches(api, query, index):
@@ -136,6 +137,11 @@ def create_dataframe_and_load_to_excel(matches_lists, new_file_name):
     load_to_excel(dataframe, new_file_name)
 
 
+def create_dataframe_and_load_to_csv(matches_lists, new_file_name):
+    dataframe = pd.DataFrame(matches_lists, columns=['Source', 'Regular_Expression', 'Match'])
+    dataframe.to_csv(f"Dataset_Files/{new_file_name}")
+
+
 if __name__ == "__main__":
     api_options = ["meta/v2", "openaccess"]
     query = '"Blood-brain barrier"'
@@ -148,6 +154,7 @@ if __name__ == "__main__":
         if i in [20000, 30000, 40000, 50000, 60000, 70000, 80000]:
             create_dataframe_and_load_to_excel(matches_lists, f"Springer_meta_v2_Searches_{i}.xlsx")
     create_dataframe_and_load_to_excel(matches_lists, "Springer_meta_v2_Searches.xlsx")
+    create_dataframe_and_load_to_csv(matches_lists, "Springer_meta_v2_Searches.csv")
 
     # openaccess Searches
     matches_lists = []
@@ -157,3 +164,4 @@ if __name__ == "__main__":
         if i in [5000, 10000, 15000, 20000]:
             create_dataframe_and_load_to_excel(matches_lists, f"Springer_openaccess_Searches_{i}.xlsx")
     create_dataframe_and_load_to_excel(matches_lists, "Springer_openaccess_Searches.xlsx")
+    create_dataframe_and_load_to_csv(matches_lists, "Springer_openaccess_Searches.csv")

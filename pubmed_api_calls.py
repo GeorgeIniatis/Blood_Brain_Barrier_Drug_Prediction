@@ -161,6 +161,13 @@ def create_dataframe_and_load_to_excel(matches_lists, new_file_name):
     load_to_excel(dataframe, new_file_name)
 
 
+def create_dataframe_and_load_to_csv(matches_lists, new_file_name):
+    dataframe = pd.DataFrame(matches_lists,
+                             columns=['UID', 'Source', 'Database', 'Regular_Expression', 'Match'])
+
+    dataframe.to_csv(f"Dataset_Files/{new_file_name}")
+
+
 if __name__ == "__main__":
     database_options = ["pubmed", "pmc"]
     query_string = "blood brain barrier permeability"
@@ -169,8 +176,10 @@ if __name__ == "__main__":
     pubmed_uids_list = get_uids(database_options[0], query_string, 15000)
     matches_lists = perform_searches(database_options[0], pubmed_uids_list)
     create_dataframe_and_load_to_excel(matches_lists, "PubMed_Searches.xlsx")
+    create_dataframe_and_load_to_csv(matches_lists, "PubMed_Searches.csv")
 
     # PMC Searches
     pmc_uids_list = get_uids(database_options[1], query_string, 80000)
     matches_lists = perform_searches(database_options[1], pmc_uids_list)
     create_dataframe_and_load_to_excel(matches_lists, "PubMed_Central_Searches.xlsx")
+    create_dataframe_and_load_to_csv(matches_lists, "PubMed_Central_Searches.csv")

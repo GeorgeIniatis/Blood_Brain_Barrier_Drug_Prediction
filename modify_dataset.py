@@ -33,6 +33,11 @@ def load_from_excel(excel_file, worksheet):
     return pd.read_excel(path, worksheet)
 
 
+def load_from_csv(csv_file):
+    path = f"Dataset_Files/{csv_file}"
+    return pd.read_csv(path)
+
+
 def load_to_excel(working_set, new_file_name):
     path = f"Dataset_Files/{new_file_name}"
     working_set.to_excel(path, engine='xlsxwriter')
@@ -49,8 +54,8 @@ def load_to_csv(working_set, new_file_name):
 def recalculate_bbb_permeability(working_set, more_than_or_equal_to_value):
     for index, row in working_set.iterrows():
         logBB = row['logBB']
-        if (logBB != '-') and (np.isnan(logBB) is False):
-            working_set.at[index, 'Class'] = 1 if logBB >= more_than_or_equal_to_value else 0
+        if logBB != '-':
+            working_set.at[index, 'Class'] = 1 if float(logBB) >= more_than_or_equal_to_value else 0
 
 
 # Use if SMILES includes backward or forward slash
@@ -196,20 +201,20 @@ def one_hot_encoding_indications(working_set):
 
 
 # Assuming you have only the SMILES
-def populate_dataset(excel_file, worksheet, new_file_name):
+def populate_dataset(excel_file, new_file_name):
     # SIDER datasets needed
     # Added column names and in the case of SIDER_Side_Effects and SIDER_Indications kept only PT to reduce size
-    sider_cid_name = load_from_excel('SIDER_CID_Name.xlsx', 'drug_names')
+    sider_cid_name = load_from_csv('SIDER_CID_Name.csv')
     sider_cid_name_sorted = sider_cid_name.sort_values('Drug_Name')
 
-    sider_side_effects = load_from_excel('SIDER_Side_Effects.xlsx', 'Sheet1')
+    sider_side_effects = load_from_csv('SIDER_Side_Effects.csv')
     sider_side_effects_sorted = sider_side_effects.sort_values('SIDER_ID')
 
-    sider_indications = load_from_excel('SIDER_Indications.xlsx', 'Sheet1')
+    sider_indications = load_from_csv('SIDER_Indications.csv')
     sider_indications_sorted = sider_indications.sort_values('SIDER_ID')
 
     # Our compounds/drug dataset
-    working_set = load_from_excel(excel_file, worksheet)
+    working_set = load_from_csv(excel_file)
 
     fill_nan(working_set)
     recalculate_bbb_permeability(working_set, -1)
@@ -291,17 +296,21 @@ def populate_dataset(excel_file, worksheet, new_file_name):
 
         print(f"Processed: {index}")
 
+        if index == 10:
+            break
+
     # Sort and remove any unknown compounds, compounds without all chemical descriptors and duplicates
-    working_set = working_set.sort_values('Name')
+    '''working_set = working_set.sort_values('Name')
     remove_unknown_compounds(working_set)
     remove_compounds_without_all_chemical_descriptors(working_set)
     working_set.drop_duplicates(subset=['PubChem_CID'], inplace=True)
     print(
         "Dataset sorted and any unknown compounds, compounds without all chemical descriptors and duplicates were removed")
-
-    print("Loading everything to excel file")
+'''
+    print("Loading everything to excel and csv files")
     load_to_excel(working_set, f"{new_file_name}.xlsx")
+    load_to_csv(working_set, f"{new_file_name}.csv")
 
 
 if __name__ == "__main__":
-    populate_dataset('Dataset_Completely_Clean.xlsx', 'Sheet1', 'Dataset_Populated')
+    populate_dataset('Dataset_Completely_Clean.csv', 'Dataset_Populated_Test')
