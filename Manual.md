@@ -11,7 +11,7 @@
 
 ## Build instructions
 
-No particular build instructions needed. Anyone with Python can access the different function used in `modify_dataset.py`, `pubmed_api_calls.py` and `pubmed_api_calls.py`, and as for the notebook you just need a Jupyter installation.
+No particular build instructions needed. Anyone with Python can access the different function used in `modify_dataset.py`, `pubmed_api_calls.py` and `pubmed_api_calls.py`, and as for `notebook.ipynb` you just need a Jupyter installation.
 
 ### Requirements
 
