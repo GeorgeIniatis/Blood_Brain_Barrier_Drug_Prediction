@@ -4,6 +4,7 @@ venv/
 __pycache__/
 conda_env/
 Dataset_Files/Google_Searches
+.ipynb_checkpoints
 
 #Files
 models.py
