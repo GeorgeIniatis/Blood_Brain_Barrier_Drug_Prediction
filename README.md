@@ -8,6 +8,10 @@ The brain is surrounded by a permeable boundary that prevents many pathogens fro
 
 Various models were built for both categories using the chemical descriptors of each specific compound or drug. In the case of the Classification models, these were further improved by including the side effects and indications of each compound or drug. Unfortunately, this could not be replicated in the case of the Regression models due to the small size of the subset
 
-A streamlit web application was then created to showcase all the different models built. [You can access the application using this link](https://share.streamlit.io/georgeiniatis/blood_brain_barrier_drug_prediction/main/Streamlit_App/app.py)
+A streamlit web application was then created to showcase all the different models built ([Web App Link](https://share.streamlit.io/georgeiniatis/blood_brain_barrier_drug_prediction/main/Streamlit_App/app.py)).
+
+An online version of the notebook is hosted on Datalore ([Datalore Link](https://datalore.jetbrains.com/notebook/IczIzzNdfezZefWuhmeMRx/D9Y5hyorcCW5ScYTdMTeab/)).
+
+A static version is also available ([Static Notebook Link](https://datalore.jetbrains.com/view/notebook/m4eB6bbbxZiNkD3AyMym6t)).
 
 
