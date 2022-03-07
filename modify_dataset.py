@@ -300,13 +300,12 @@ def populate_dataset(excel_file, new_file_name):
             break
 
     # Sort and remove any unknown compounds, compounds without all chemical descriptors and duplicates
-    '''working_set = working_set.sort_values('Name')
+    working_set = working_set.sort_values('Name')
     remove_unknown_compounds(working_set)
     remove_compounds_without_all_chemical_descriptors(working_set)
     working_set.drop_duplicates(subset=['PubChem_CID'], inplace=True)
     print(
         "Dataset sorted and any unknown compounds, compounds without all chemical descriptors and duplicates were removed")
-'''
     print("Loading everything to excel and csv files")
     load_to_excel(working_set, f"{new_file_name}.xlsx")
     load_to_csv(working_set, f"{new_file_name}.csv")
