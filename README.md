@@ -4,7 +4,7 @@
 
 **Motivation**: Checking whether a specific drug or compound can penetrate the BBB with experimental trials is expensive, time consuming and highly inefficient. Therefore, a predictive system can be a highly valuable tool that can test thousands of drugs and compounds in an inexpensive, fast and efficient manner.
 
-**Aims**: This project aimed to create a new curated data set and then using it train classification and regression models that make use of a drug's or compound's chemical properties to predict whether it can pass into the BBB or not.
+**Aims**: This project aimed to create a new curated data set and then using it train machine learning models that make use of a drug's or compound's chemical properties to predict whether it can pass into the BBB or not.
 
 **Methods**: Both classification and regression models were trained using subsets of a curated data set of 2396 publicly available drugs and compounds and 6 hydrogen-bonding chemical descriptors. The classification models were then further improved through the addition of the available side effects and indications to the chemical descriptors. Unfortunately this could not be replicated for the case of the regression models due to the small number of available drugs and compounds that had all the necessary information we required. All models were checked for robustness and evaluated using dummy models and holdout test sets.
 
