@@ -1,14 +1,19 @@
 # Blood Brain Barrier Drug Prediction
 
-The brain is surrounded by a permeable boundary that prevents many pathogens from getting in, however, it can also stop many useful drugs from entering the brain. This is especially important when trying to deliver critical therapeutics, such as chemotherapy, to brain tumours. Accurate prediction of whether a drug will easily cross the blood-brain barrier is a valuable tool for developing and testing new drugs for various diseases.
+**Background**: The blood-brain barrier (BBB) prevents the vast majority of all compounds from entering the brain, protecting it from diseases and infections. However, it can also prevent useful therapeutics combating brain or central nervous system (CNS) related diseases from reaching their target.
 
-**Original Aims**: This project aimed to gather publicly available data on drugs known to cross into the brain and those that cannot and place them into a new dataset and then using that new dataset train machine learning models that use a drug's or compound's chemical descriptors to predict whether it can pass into the brain or not
+**Motivation**: Checking whether a specific drug or compound can penetrate the BBB with experimental trials is expensive, time consuming and highly inefficient. Therefore, a predictive system can be a highly valuable tool that can test thousands of drugs and compounds in an inexpensive, fast and efficient manner.
 
-**Actual Achievements**: A dataset of 2396 publicly available compounds and drugs was gathered from various academic papers and APIs. The models built were split into two categories, Classification and Regression. Classification models would try to predict whether a particular compound or drug can pass the barrier and Regression models would try to predict the logBB value.
+**Aims**: This project aimed to create a new curated data set and then using it train classification and regression models that make use of a drug's or compound's chemical properties to predict whether it can pass into the BBB or not.
 
-Various models were built for both categories using the chemical descriptors of each specific compound or drug. In the case of the Classification models, these were further improved by including the side effects and indications of each compound or drug. Unfortunately, this could not be replicated in the case of the Regression models due to the small size of the subset
+**Methods**: Both classification and regression models were trained using subsets of a curated data set of 2396 publicly available drugs and compounds and 6 hydrogen-bonding chemical descriptors. The classification models were then further improved through the addition of the available side effects and indications to the chemical descriptors. Unfortunately this could not be replicated for the case of the regression models due to the small number of available drugs and compounds that had all the necessary information we required. All models were checked for robustness and evaluated using dummy models and holdout test sets.
 
-A streamlit web application was then created to showcase all the different models built ([Web App Link](https://share.streamlit.io/georgeiniatis/blood_brain_barrier_drug_prediction/main/Streamlit_App/app.py)).
+**Results**: 
+- Our best classification model with just chemical descriptors used as features was the Random Forest Classifier which achieved an F1 score of 0.8506, an Accuracy of 0.8116, a Recall score of 0.9250, a Precision score of 0.7872 and a Matthews Correlation Coefficient of 0.6145. 
+- Our best classification model with chemical descriptors and a selection of side effects and indications as features was again the Random Forest Classifier, which achieved an F1 score of 0.8642, an Accuracy of 0.8406, a Recall score of 0.8750, a Precision score of 0.8537 and a Matthews Correlation Coefficient of 0.6716. 
+- Our best regression model with chemical descriptors used as features was the Support Vector Regression model, which achieved an R2 score of 0.4746, and a Negated Mean Absolute Error of -0.3968.
+
+A Streamlit web application was created to showcase all the different models built and our work. ([Web App Link](https://share.streamlit.io/georgeiniatis/blood_brain_barrier_drug_prediction/main/Streamlit_App/app.py)).
 
 An online version of the notebook is hosted on Datalore ([Datalore Link](https://datalore.jetbrains.com/notebook/IczIzzNdfezZefWuhmeMRx/D9Y5hyorcCW5ScYTdMTeab/)).
 
