@@ -1,4 +1,4 @@
-# Blood Brain Barrier Drug Prediction
+# Blood-Brain Barrier Drug Prediction
 
 **Background**: The blood-brain barrier (BBB) prevents the vast majority of all compounds from entering the brain, protecting it from diseases and infections. However, it can also prevent useful therapeutics combating brain or central nervous system (CNS) related diseases from reaching their target.
 
