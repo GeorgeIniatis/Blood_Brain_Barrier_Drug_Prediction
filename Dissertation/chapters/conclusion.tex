@@ -1,0 +1,51 @@
+\chapter{Conclusion}    
+%Summarise the whole project for a lazy reader who didn't read the %rest (e.g. a prize-awarding committee). This chapter should be short %in most dissertations; maybe one to three pages.
+%\section{Guidance}
+%\begin{itemize}
+%    \item
+%        Summarise briefly and fairly.
+%    \item
+%        You should be addressing the general problem you introduced %in the
+%        Introduction.        
+%    \item
+%        Include summary of concrete results (``the new compiler ran %2x
+%        faster'')
+%    \item
+%        Indicate what future work could be done, but remember: %\textbf{you
+%        won't get credit for things you haven't done}.
+%\end{itemize}
+
+This chapter summarises the project and discusses valuable lessons learned and any possible future work that could potentially improve upon our findings. 
+
+
+\section{Summary}
+
+The brain is surrounded by a semi-permeable boundary that prevents many pathogens from getting in. However, it can also stop many useful drugs from entering the brain. This is especially important when trying to deliver critical therapeutics, such as chemotherapy, to brain tumours. Therefore, accurate prediction of whether a drug will easily cross the blood-brain barrier is a valuable tool for developing and testing new drugs for various diseases.
+
+This project aimed to gather publicly available data on drugs known to cross into the brain and those that cannot and place them into a new data set and then, using that new data set, train machine learning models that use a drug's or compound's chemical descriptors to predict whether it can pass into the brain or not.
+
+A data set of 2396 publicly available compounds and drugs was gathered from various academic papers and medical APIs, subsets of which were used to train both classification and regression models. Various models were trained for both types of models using a tiny number of chemical descriptors, checked for robustness and evaluated using test sets and dummy models. In the case of classification models, these were further improved by including the available side effects and indications of each drug and compound. Unfortunately, this could not be replicated for the regression models due to the small size of available drugs having all the necessary information we required.
+
+A Streamlit web application was then created to present a synopsis of our work and primarily showcase our models, allowing users to use them to make predictions. A strong emphasis was also placed on model interpretability, potentially helping users understand what led to a specific prediction by a model. A strong chemical or medical knowledge is not necessarily needed, but it would definitely be a plus. 
+
+Our best classification model with just chemical descriptors used as features was the Random Forest Classifier which achieved an F1 score of 0.8506, an Accuracy of 0.8116, a Recall score of 0.9250, a Precision score of 0.7872 and a Matthews Correlation Coefficient of 0.6145.
+
+Our best classification model with chemical descriptors and a selection of side effects and indications as features was again the Random Forest Classifier, which achieved an F1 score of 0.8642, an Accuracy of 0.8406, a Recall score of 0.8750, a Precision score of 0.8537 and a Matthews Correlation Coefficient of 0.6716.
+
+Our best regression model with chemical descriptors used as features was the Support Vector Regression model, which achieved an R2 score of 0.4746, and a Negated Mean Absolute Error of -0.3968.
+
+The created models can be used efficiently to predict the blood-brain permeability of thousands of already existing or new drugs and compounds. However, these predictions should be taken as guidelines for further research, possibly even experimental trials in order to confirm them, and not as absolutes, as no model can be perfect.
+
+\section{Reflection}
+
+This project allowed us to work in-depth with previously unfamiliar concepts, mainly bioinformatics and machine learning, and to learn multiple new skills, best practices, and techniques that we can build upon in the future. 
+
+Looking back at the project, we should have definitely used a common testing set with one of the background papers in Chapter \ref{ch:Background} so we could directly compare our models' performance and to see if we achieved a better predictive performance or not, expand our data set even more, and spent more time and energy analysing the errors of our models. However, overall we believe the project to be a success, achieving all of its specified objectives in a professional and responsible manner.
+
+\section{Future work}
+
+Even though it could be argued that the project was reasonably successful, a few areas of improvement could be explored further in the future. 
+
+The data set could be expanded with the help of professionals with chemical and medical knowledge that could potentially point out any mislabelled entries, which could then be used to retrain the models or create new ones, even potentially utilising deep learning to produce even better models with greater predictive performances.
+
+The already trained models could be improved by analysing their blind spots, the chemical areas of drugs and compounds that are consistently misclassified or produce a high error value. Some preliminary error analysis of the predictions made by our models found what appear to be groupings, suggesting that there is some pattern that could be looked at in more detail. These systematic weaknesses could be negated by further exploring the errors, but some in-depth chemical knowledge would be required, which we did not have during the project's life-cycle.

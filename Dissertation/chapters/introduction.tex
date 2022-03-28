@@ -1,0 +1,43 @@
+\chapter{Introduction}
+
+% reset page numbering. Don't remove this!
+\pagenumbering{arabic} 
+
+%\footnote{Specifying an online resource like %\url{https://developer.android.com/studio}
+%in a footnote sometimes makes more sense than %including it as a formal reference.}
+
+%\todo{Remove everything above}
+
+This chapter will introduce the project on a high level and examine its motivations and objectives.
+
+\section{Motivation}
+\label{sec:Motivation}
+
+The blood-brain barrier (BBB) can have a complex medical definition. However, for the sake of simplicity and the purposes of this project, we can think of it as a semi-permeable membrane that only allows molecules that are small or fat-soluble to enter the brain, and by definition, the central nervous system (CNS), while preventing larger ones from gaining entry \citep{Woodruff2017}. This process is called passive diffusion, but it should also be noted that there are certain types of larger molecules, one of them being glucose, that can still enter the brain using different methods, such as through the usage of transport proteins \citep{Woodruff2017, Gao2017}.
+
+Just as the skull and cerebrospinal fluid, the fluid surrounding the brain, protect it from physical damage, the blood-brain barrier protects it from internal threats, such as harmful toxins and pathogens, that can cause infections and diseases \citep{Woodruff2017}. This protective barrier prevents 98\% of compounds from entering the brain. However, this can also mean preventing useful drugs from reaching their target, and this can be especially important when trying to deliver life-saving medicine like chemotherapy agents to combat brain tumours \citep{Gao2017}.
+
+Manually checking whether a drug can penetrate the blood-brain barrier or not using laboratory experiments is expensive, time-consuming and can only be done one drug at a time, making the whole process highly inefficient \citep{Singh2020}. On the other hand, a prediction system can test thousands of drugs quickly and cheaply and can be used effectively as an early screening process, leading to a better allocation of time and resources for manual checks by discovering those drugs or compounds worth checking in more detail.
+
+\section{Objectives}
+\label{sec:Objectives}
+
+The project aimed to gather publicly available data on drugs known to cross into the brain and those that cannot and place them into a new curated data set and then using this new data set train multiple machine learning models that use a drug's or compound's chemical properties to predict whether it can pass into the brain or not. The models should then be evaluated and compared in terms of robustness and performance, and a rudimentary system using these models should be constructed.
+
+\section{Outline}
+
+The dissertation consists of 6 chapters, including this one, where each discusses and examines a different stage of the project's life-cycle.
+
+\begin{itemize}
+\item \textbf{Chapter 2 - Background} \\
+Explores how other researchers have tackled the same problem and the valuable strategies, techniques, and knowledge discovered from their experiments.
+\item \textbf{Chapter 3 - Requirements Analysis} \\
+Discusses the high-level decisions made to narrow the scope of the project.
+\item \textbf{Chapter 4 - Design \& Implementation} \\
+Explores how the data set and various machine learning models
+were created, using the decisions already discussed in Chapter 3.
+\item \textbf{Chapter 5 - Results \& Evaluation} \\
+Discusses data exploration findings and the predictive performances of our trained models.
+\item \textbf{Chapter 6 - Conclusion} \\
+Summarises the project and discusses valuable lessons learned and any possible future work that could potentially improve our findings. 
+\end{itemize}
