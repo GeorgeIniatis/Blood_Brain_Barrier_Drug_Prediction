@@ -14,7 +14,7 @@
 - Our best classification model with chemical descriptors and a selection of side effects and indications as features was again the Random Forest Classifier, which achieved an F1 score of 0.8642, an Accuracy of 0.8406, a Recall score of 0.8750, a Precision score of 0.8537 and a Matthews Correlation Coefficient of 0.6716. 
 - Our best regression model with chemical descriptors used as features was the Support Vector Regression model, which achieved an R2 score of 0.4746, and a Negated Mean Absolute Error of -0.3968.
 
-**Links**:
+**Important Links**:
 - Dissertation discussing the project's life-cycle ([Dissertation Link](https://github.com/GeorgeIniatis/Blood_Brain_Barrier_Drug_Prediction/blob/main/Dissertation/Dissertation.pdf))
 - Streamlit web application created to showcase all the different models and our work ([Web App Link](https://share.streamlit.io/georgeiniatis/blood_brain_barrier_drug_prediction/main/Streamlit_App/app.py))
 - Online version of the notebook hosted on Datalore ([Datalore Link](https://datalore.jetbrains.com/notebook/IczIzzNdfezZefWuhmeMRx/D9Y5hyorcCW5ScYTdMTeab/))
