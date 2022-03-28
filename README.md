@@ -17,7 +17,7 @@
 **Important Links**:
 - Dissertation discussing the project's life-cycle ([Dissertation Link](https://github.com/GeorgeIniatis/Blood_Brain_Barrier_Drug_Prediction/blob/main/Dissertation/Dissertation.pdf))
 - Streamlit web application created to showcase all the different models and our work ([Web App Link](https://share.streamlit.io/georgeiniatis/blood_brain_barrier_drug_prediction/main/Streamlit_App/app.py))
-- Online version of the notebook hosted on Datalore ([Datalore Link](https://datalore.jetbrains.com/notebook/IczIzzNdfezZefWuhmeMRx/D9Y5hyorcCW5ScYTdMTeab/))
+- Online version of the notebook hosted on Datalore ([Notebook Link](https://datalore.jetbrains.com/notebook/IczIzzNdfezZefWuhmeMRx/D9Y5hyorcCW5ScYTdMTeab/))
 - Static version of the notebook hosted on Datalore ([Static Notebook Link](https://datalore.jetbrains.com/view/notebook/m4eB6bbbxZiNkD3AyMym6t))
 
 
