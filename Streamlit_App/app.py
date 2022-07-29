@@ -1,7 +1,6 @@
 import streamlit as st
 from multipage import MultiPage
-from pages import home, dataset, classification_models, regression_models, references
-import openpyxl
+from other_pages import home, dataset, classification_models, regression_models, references
 
 # Create an instance of the app
 app = MultiPage()
