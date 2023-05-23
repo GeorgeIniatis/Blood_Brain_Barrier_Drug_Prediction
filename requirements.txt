@@ -9,7 +9,7 @@ numpy==1.22.2
 openpyxl==3.0.9
 pandas==1.4.0
 plotly==5.6.0
-requests==2.27.1
+requests==2.31.0
 scikit_learn==1.0.2
 streamlit==1.11.1
 urllib3==1.26.8
